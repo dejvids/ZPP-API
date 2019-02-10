@@ -15,7 +15,11 @@ namespace ZPP.Server.Entities
         public string PasswordHash { get; set; }
         public bool IsActive { get; set; }
         public Role Role { get; set; }
+        public int RoleId { get; set; }
+        public int? CompanyId { get; set; }
         public Company Company { get; set; }
         public IList<Participant> Participants { get; set; }
+        public IList<Lecture> Lectures { get; set; }
+        public IList<Opinion> GivenOpinions { get; set; }
     }
 }
