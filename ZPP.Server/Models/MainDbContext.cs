@@ -32,7 +32,7 @@ namespace ZPP.Server.Models
                 .OnDelete(DeleteBehavior.SetNull);
 
 
-            modelBuilder.Entity<Participant>().HasOne(x => x.Student).WithMany(u => u.Participants)
+            modelBuilder.Entity<Participant>().HasOne(x => x.Student).WithMany(u => u.UserLectures)
                 .HasForeignKey(x => x.StudentId)
                 .OnDelete(DeleteBehavior.Cascade);
 
@@ -56,16 +56,22 @@ namespace ZPP.Server.Models
 
             modelBuilder.Entity<User>().HasData(
                 new User { Id = 1, Login = "admin", Email = "admin@zpp.com", IsActive = true, RoleId = 1, Name = "Admin", Surname = "ZPP" },
-                new User { Id = 2, Login = "dsurys", Email = "dawid.surys@pollub.edu.pl", IsActive = true, RoleId = 2, Name = "Dawid", Surname = "Suryś" });
+                new User { Id = 2, Login = "dsurys", Email = "dawid.surys@pollub.edu.pl", IsActive = true, RoleId = 2, Name = "Dawid", Surname = "Suryś" },
+                new User { Id = 3, Login = "tKowalczyk", Email = "tomasz.kowalczyk@bs.pl", IsActive = true, RoleId = 3, Name = "Tomasz", Surname = "Kowalczyk", CompanyId = 1 },
+                new User { Id = 4, Login = "Asseco official", Email = "assecok@bs.pl", IsActive = true, RoleId = 4, CompanyId = 1 });
 
             modelBuilder.Entity<Lecture>().HasData(
-                new Lecture { Id = 1, Date = new DateTime(2019, 02, 20), Name = "Wykład testowy 1", Description = "Wykład testowy, używany w fazie rozwijania", Place = "Wydział Elektryczny E201", LecturerId = 1 });
+                new Lecture { Id = 1, Date = new DateTime(2019, 02, 20), Name = "Wykład testowy 1", Description = "Wykład testowy, używany w fazie rozwijania", Place = "Wydział Elektryczny E201"},
+                new Lecture { Id = 2, Date = new DateTime(2019, 02, 27), Name = "Wzorce projektowe", Description = "Praktyczne zastosowanie wzorców projektowych", Place = "Wydział Elektryczny E201", LecturerId = 3});
 
             modelBuilder.Entity<Participant>().HasData(
                 new Participant { StudentId = 2, LectureId = 1, Present = true });
 
             modelBuilder.Entity<Opinion>().HasData(
                 new Opinion { Date = DateTime.UtcNow, LecturerMark = 5, SubjectMark = 5, RecommendationChance = 5, StudentId = 2, LectureId = 1 });
+            modelBuilder.Entity<Company>().HasData(
+                new Company { Id = 1, Name = "Asseco BS" },
+                new Company { Id = 2, Name = "Sii" });
         }
     }
 }

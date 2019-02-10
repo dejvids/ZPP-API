@@ -18,7 +18,7 @@ namespace ZPP.Server.Entities
         public int RoleId { get; set; }
         public int? CompanyId { get; set; }
         public Company Company { get; set; }
-        public IList<Participant> Participants { get; set; }
+        public IList<Participant> UserLectures { get; set; }
         public IList<Lecture> Lectures { get; set; }
         public IList<Opinion> GivenOpinions { get; set; }
     }
