@@ -9,7 +9,7 @@ using ZPP.Server.Models;
 
 namespace ZPP.Server.Migrations
 {
-    [DbContext(typeof(MainDbContext))]
+    [DbContext(typeof(AppDbContext))]
     [Migration("20190210221147_initMigration")]
     partial class initMigration
     {

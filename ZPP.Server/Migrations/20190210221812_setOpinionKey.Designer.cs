@@ -9,7 +9,7 @@ using ZPP.Server.Models;
 
 namespace ZPP.Server.Migrations
 {
-    [DbContext(typeof(MainDbContext))]
+    [DbContext(typeof(AppDbContext))]
     [Migration("20190210221812_setOpinionKey")]
     partial class setOpinionKey
     {

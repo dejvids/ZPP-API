@@ -23,6 +23,11 @@ namespace ZPP.Server.Entities
         public IList<Lecture> Lectures { get; set; }
         public IList<Opinion> GivenOpinions { get; set; }
 
+        public User()
+        {
+
+        }
+
         public bool ValidatePassword(string password, IPasswordHasher<User> passwordHasher)
            => passwordHasher.VerifyHashedPassword(this, PasswordHash, password) != PasswordVerificationResult.Failed;
 

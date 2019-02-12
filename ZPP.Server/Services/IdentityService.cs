@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ZPP.Server.Authentication;
+using ZPP.Server.Dtos;
 using ZPP.Server.Entities;
 using ZPP.Server.Models;
 
@@ -27,7 +28,7 @@ namespace ZPP.Server.Services
             throw new NotImplementedException();
         }
 
-        public async Task<JsonWebToken> SignInAsync(MainDbContext dbContext, string login, string password)
+        public async Task<JsonWebToken> SignInAsync(AppDbContext dbContext, string login, string password)
         {
             var user = dbContext.Users.FirstOrDefault(x => x.Email.ToLower() == login.ToLower()) ?? dbContext.Users.FirstOrDefault(x => x.Login.ToLower() == login.ToLower());
             if (user == null || !user.ValidatePassword(password, _passwordHasher))
@@ -40,7 +41,7 @@ namespace ZPP.Server.Services
             return jwt;
         }
 
-        public async Task<JsonWebToken> SignInAsync(MainDbContext dbContext, string email)
+        public async Task<JsonWebToken> SignInAsync(AppDbContext dbContext, string email)
         {
             var user = dbContext.Users.FirstOrDefault(x => x.Email == email.ToUpper());
             if (user == null)
@@ -55,26 +56,30 @@ namespace ZPP.Server.Services
             return jwt;
         }
 
-        public async Task SignUpAsync(MainDbContext dbContext, string email, string login, string password, string rolename = "student")
+        public async Task SignUpAsync(AppDbContext dbContext, SignUpModel userModel, string rolename = "student")
         {
-            var user = dbContext.Users.FirstOrDefault(x => x.Email.ToUpper() == email.ToUpper());
+            var user = dbContext.Users.FirstOrDefault(x => x.Email.ToUpper() == userModel.Email.ToUpper() || x.Login == userModel.Login);
             if (user != null)
             {
-                throw new Exception();
+                throw new Exception("User with this login or email already exists");
             }
 
             user = new User();
-            user.Email = email;
-            user.Login = login;
-            user.SetPassword(password, _passwordHasher);
+            user.Email = userModel.Email;
+            user.Login = userModel.Login;
+            user.Name = userModel.Name;
+            user.Surname = userModel.Surname;
+            user.SetPassword(userModel.Password, _passwordHasher);
+            user.RoleId = 2;
+            user.IsActive = true;
             dbContext.Users.Add(user);
             await dbContext.SaveChangesAsync();
-            user = dbContext.Users.Where(x => x.Email == email).FirstOrDefault();
+            //user = dbContext.Users.Where(x => x.Email == userModel.Email).FirstOrDefault();
 
-            var role = dbContext.Roles.FirstOrDefault(x => x.Name.ToUpper() == rolename.Trim().ToUpper());
-            if (role != null)
-                user.Role = role;
-            await dbContext.SaveChangesAsync();
+            //var role = dbContext.Roles.FirstOrDefault(x => x.Name.ToUpper() == rolename.Trim().ToUpper());
+            //if (role != null)
+              //  user.Role = role;
+            //await dbContext.SaveChangesAsync();
         }
     }
 }

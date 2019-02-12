@@ -32,7 +32,7 @@ namespace ZPP.Server.Authentication
             {
                 o.User.RequireUniqueEmail = true;
             })
-            .AddEntityFrameworkStores<MainDbContext>()
+            .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
             services.AddAuthentication(o =>
             {
