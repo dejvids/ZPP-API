@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,5 +22,18 @@ namespace ZPP.Server.Entities
         public IList<Participant> UserLectures { get; set; }
         public IList<Lecture> Lectures { get; set; }
         public IList<Opinion> GivenOpinions { get; set; }
+
+        public bool ValidatePassword(string password, IPasswordHasher<User> passwordHasher)
+           => passwordHasher.VerifyHashedPassword(this, PasswordHash, password) != PasswordVerificationResult.Failed;
+
+        public void SetPassword(string password, IPasswordHasher<User> passwordHasher)
+        {
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                throw new Exception(
+                    "Password can not be empty.");
+            }
+            PasswordHash = passwordHasher.HashPassword(this, password);
+        }
     }
 }
