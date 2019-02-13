@@ -10,10 +10,11 @@ using ZPP.Server.Dtos;
 using ZPP.Server.Entities;
 using ZPP.Server.Models;
 using ZPP.Server.Services;
+using SignInResult = ZPP.Server.Dtos.SignInResult;
 
 namespace ZPP.Server.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/")]
     [ApiController]
     public class UsersController : ControllerBase
     {
@@ -36,13 +37,13 @@ namespace ZPP.Server.Controllers
         {
             return Ok();
         }
-        
-        // POST: api/Users
-        [HttpPost("/sign-up")]
+
+        // POST: api/sign-up
+        [HttpPost("/api/sign-up")]
         [AllowAnonymous]
         public async Task<IActionResult> SignUp([FromBody] SignUpModel user)
         {
-            if(user == null || user.Login == null || user.Email == null)
+            if (user == null || user.Login == null || user.Email == null)
             {
                 return BadRequest("Nie podano wymaganych danych ro rejestracji");
             }
@@ -55,6 +56,21 @@ namespace ZPP.Server.Controllers
                 return BadRequest(ex.Message);
             }
             return Ok();
+        }
+
+        [HttpPost("/api/sign-in")]
+        [AllowAnonymous]
+        public async Task<IActionResult> SignIn([FromBody] SignInModel user)
+        {
+            try
+            {
+                var token = await _identityService.SignInAsync(_dbContext, user.Login, user.Password);
+                return Ok(new SignInResult(true, null, token));
+            }
+            catch (Exception)
+            {
+                return BadRequest( new SignInResult(false,"Nieudana próba logowania", null));
+            }
         }
 
         // PUT: api/Users/5

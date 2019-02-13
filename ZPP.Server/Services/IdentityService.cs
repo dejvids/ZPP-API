@@ -30,7 +30,16 @@ namespace ZPP.Server.Services
 
         public async Task<JsonWebToken> SignInAsync(AppDbContext dbContext, string login, string password)
         {
-            var user = dbContext.Users.FirstOrDefault(x => x.Email.ToLower() == login.ToLower()) ?? dbContext.Users.FirstOrDefault(x => x.Login.ToLower() == login.ToLower());
+            User user;
+            try
+            {
+                user = dbContext.Users.FirstOrDefault(x => x.Email.ToLower() == login.ToLower()) ?? dbContext.Users.FirstOrDefault(x => x.Login.ToLower() == login.ToLower());
+
+            }
+            catch(Exception ex)
+            {
+                throw;
+            }
             if (user == null || !user.ValidatePassword(password, _passwordHasher))
             {
                 throw new Exception("Invalid credentials.");
@@ -78,7 +87,7 @@ namespace ZPP.Server.Services
 
             //var role = dbContext.Roles.FirstOrDefault(x => x.Name.ToUpper() == rolename.Trim().ToUpper());
             //if (role != null)
-              //  user.Role = role;
+            //  user.Role = role;
             //await dbContext.SaveChangesAsync();
         }
     }
