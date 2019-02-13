@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -69,7 +70,58 @@ namespace ZPP.Server.Controllers
             }
             catch (Exception)
             {
-                return BadRequest( new SignInResult(false,"Nieudana próba logowania", null));
+                return BadRequest(new SignInResult(false, "Nieudana próba logowania", null));
+            }
+        }
+
+        [HttpGet("/sign-in-google")]
+        public IActionResult SignInByGoogle()
+        {
+            var authenticationProperties = _signInManager.ConfigureExternalAuthenticationProperties("Google", "/google-handler");
+            return Challenge(authenticationProperties, "Google");
+        }
+
+        [HttpGet("/google-handler")]
+        public async Task<IActionResult> HandleExternalLogin()
+        {
+            //Debug.WriteLine("Signed in");
+            string email;
+            try
+            {
+
+                var info = await _signInManager.GetExternalLoginInfoAsync();
+                email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Błąd zewnętrznego dostawcy uwierzytelniania");
+            }
+
+            try
+            {
+
+                bool isNewUser = !_dbContext.Users.Any(x => x.Email.ToUpper() == email.ToUpper());
+                if (string.IsNullOrEmpty(email))
+                    return Redirect("/api/sign-in-google");
+                if (isNewUser)
+                {
+                    var newUser = new User()
+                    {
+                        Login = email,
+                        Email = email,
+                        RoleId = 2
+                    };
+
+                    _dbContext.Users.Add(newUser);
+                    await _dbContext.SaveChangesAsync();
+                }
+                var token = await _identityService.SignInAsync(_dbContext, email);
+
+                return Ok(new SignInResult(true, null, token));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Nie można zalogować do aplikacji");
             }
         }
 
