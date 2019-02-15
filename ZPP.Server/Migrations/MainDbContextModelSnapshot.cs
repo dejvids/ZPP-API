@@ -8,7 +8,7 @@ using ZPP.Server.Models;
 
 namespace ZPP.Server.Migrations
 {
-    [DbContext(typeof(MainDbContext))]
+    [DbContext(typeof(AppDbContext))]
     partial class MainDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

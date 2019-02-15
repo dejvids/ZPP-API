@@ -4,14 +4,20 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using ZPP.Server.Authentication;
+using ZPP.Server.Entities;
 using ZPP.Server.Models;
+using ZPP.Server.Services;
 
 namespace ZPP.Server
 {
@@ -27,7 +33,7 @@ namespace ZPP.Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<MainDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("local")));
+            services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("local")));
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy", cors =>
@@ -36,6 +42,16 @@ namespace ZPP.Server
                     .AllowAnyHeader()
                     .AllowCredentials());
             });
+            services.AddTransient<IPasswordHasher<User>, PasswordHasher<User>>();
+            services.AddTransient<IIdentityService, IdentityService>()
+                .AddTransient<IJwtHandler, JwtHandler>()
+                .AddTransient<IClaimsProvider, ClaimsProvider>()
+                .AddTransient<IPasswordHasher<User>, PasswordHasher<User>>();
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            services.AddJwt();
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
@@ -53,7 +69,13 @@ namespace ZPP.Server
             }
             app.UseCors("CorsPolicy");
             app.UseHttpsRedirection();
-            app.UseMvc();
+            app.UseAuthentication();
+            app.UseMvc(options =>
+                {
+                    options.MapRoute(
+                name: "default",
+                template: "{controller=Home}/{action=Index}/{id?}");
+                });
         }
     }
 }

@@ -7,7 +7,7 @@ using ZPP.Server.Entities;
 
 namespace ZPP.Server.Models
 {
-    public class MainDbContext : DbContext
+    public class AppDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
@@ -17,7 +17,12 @@ namespace ZPP.Server.Models
         public DbSet<Company> Companies { get; set; }
         public DbSet<VerificationCode> VerificationCodes { get; set; }
 
-        public MainDbContext(DbContextOptions<MainDbContext> options)
+        public AppDbContext()
+        {
+
+        }
+
+        public AppDbContext(DbContextOptions<AppDbContext> options)
        : base(options)
         { }
 
@@ -61,8 +66,8 @@ namespace ZPP.Server.Models
                 new User { Id = 4, Login = "Asseco official", Email = "assecok@bs.pl", IsActive = true, RoleId = 4, CompanyId = 1 });
 
             modelBuilder.Entity<Lecture>().HasData(
-                new Lecture { Id = 1, Date = new DateTime(2019, 02, 20), Name = "Wykład testowy 1", Description = "Wykład testowy, używany w fazie rozwijania", Place = "Wydział Elektryczny E201"},
-                new Lecture { Id = 2, Date = new DateTime(2019, 02, 27), Name = "Wzorce projektowe", Description = "Praktyczne zastosowanie wzorców projektowych", Place = "Wydział Elektryczny E201", LecturerId = 3});
+                new Lecture { Id = 1, Date = new DateTime(2019, 02, 20), Name = "Wykład testowy 1", Description = "Wykład testowy, używany w fazie rozwijania", Place = "Wydział Elektryczny E201" },
+                new Lecture { Id = 2, Date = new DateTime(2019, 02, 27), Name = "Wzorce projektowe", Description = "Praktyczne zastosowanie wzorców projektowych", Place = "Wydział Elektryczny E201", LecturerId = 3 });
 
             modelBuilder.Entity<Participant>().HasData(
                 new Participant { StudentId = 2, LectureId = 1, Present = true });
