@@ -53,10 +53,24 @@ namespace ZPP.Server.Authentication
                 })
                 .AddGoogle("Google", googleOptions =>
                 {
-                    googleOptions.CallbackPath = new PathString("/signin-google");
+                    googleOptions.CallbackPath = new PathString("/external-handler");
                     googleOptions.ClientId = configuration["Authentication:Google:client_id"];
                     googleOptions.ClientSecret = configuration["Authentication:Google:client_secret"];
                     googleOptions.Events = new OAuthEvents
+                    {
+                        OnRemoteFailure = (RemoteFailureContext context) =>
+                        {
+                            context.Response.Redirect("/");
+                            context.HandleResponse();
+                            return Task.CompletedTask;
+                        },
+                    };
+                })
+                .AddFacebook(facebookOptions =>
+                {
+                    facebookOptions.AppId = configuration["Authentication:Facebook:AppId"];
+                    facebookOptions.AppSecret = configuration["Authentication:Facebook:AppSecret"];
+                    facebookOptions.Events = new OAuthEvents
                     {
                         OnRemoteFailure = (RemoteFailureContext context) =>
                         {

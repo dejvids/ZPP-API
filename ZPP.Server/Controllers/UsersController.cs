@@ -78,11 +78,17 @@ namespace ZPP.Server.Controllers
         [HttpGet("/sign-in-google")]
         public IActionResult SignInByGoogle()
         {
-            var authenticationProperties = _signInManager.ConfigureExternalAuthenticationProperties("Google", "/google-handler");
+            var authenticationProperties = _signInManager.ConfigureExternalAuthenticationProperties("Google", "/external-handler");
             return Challenge(authenticationProperties, "Google");
         }
+        [HttpGet("/sign-in-facebook")]
+        public IActionResult SignInByFacebook()
+        {
+            var authenticationProperties = _signInManager.ConfigureExternalAuthenticationProperties("Facebook", "/external-handler");
+            return Challenge(authenticationProperties, "Facebook");
+        }
 
-        [HttpGet("/google-handler")]
+        [HttpGet("/external-handler")]
         public async Task<IActionResult> HandleExternalLogin()
         {
             //Debug.WriteLine("Signed in");
@@ -103,7 +109,7 @@ namespace ZPP.Server.Controllers
 
                 bool isNewUser = !_dbContext.Users.Any(x => x.Email.ToUpper() == email.ToUpper());
                 if (string.IsNullOrEmpty(email))
-                    return Redirect("/api/sign-in-google");
+                    return Redirect("/");
                 if (isNewUser)
                 {
                     var newUser = new User()
