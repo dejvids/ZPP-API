@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,7 +34,7 @@ namespace ZPP.Server.Services
             User user;
             try
             {
-                user = dbContext.Users.FirstOrDefault(x => x.Email.ToLower() == login.ToLower()) ?? dbContext.Users.FirstOrDefault(x => x.Login.ToLower() == login.ToLower());
+                user = dbContext.Users.Include(x=>x.Role).FirstOrDefault(x => x.Email.ToLower() == login.ToLower()) ?? dbContext.Users.Include(x=>x.Role).FirstOrDefault(x => x.Login.ToLower() == login.ToLower());
 
             }
             catch(Exception ex)
@@ -45,8 +46,13 @@ namespace ZPP.Server.Services
                 throw new Exception("Invalid credentials.");
             }
 
+            if(!user.IsActive)
+            {
+                throw new Exception("Account is inactive");
+            }
+
             var claims = await _claimsProvider.GetAsync(user.Id);
-            var jwt = _jwtHandler.CreateToken(user.Id.ToString(), "user");
+            var jwt = _jwtHandler.CreateToken(user.Id.ToString(), user.Role.Name);
             return jwt;
         }
 
@@ -58,6 +64,10 @@ namespace ZPP.Server.Services
                 throw new Exception("Invalid credentials.");
             }
 
+            if(!user.IsActive)
+            {
+                throw new Exception("Account is inactive");
+            }
 
             var claims = await _claimsProvider.GetAsync(user.Id);
             var jwt = _jwtHandler.CreateToken(user.Id.ToString(), "student");
@@ -83,12 +93,6 @@ namespace ZPP.Server.Services
             user.IsActive = true;
             dbContext.Users.Add(user);
             await dbContext.SaveChangesAsync();
-            //user = dbContext.Users.Where(x => x.Email == userModel.Email).FirstOrDefault();
-
-            //var role = dbContext.Roles.FirstOrDefault(x => x.Name.ToUpper() == rolename.Trim().ToUpper());
-            //if (role != null)
-            //  user.Role = role;
-            //await dbContext.SaveChangesAsync();
         }
     }
 }

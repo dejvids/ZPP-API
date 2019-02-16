@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
+using ZPP.Server.Authentication;
 using ZPP.Server.Dtos;
 using ZPP.Server.Entities;
 using ZPP.Server.Models;
@@ -21,11 +22,13 @@ namespace ZPP.Server.Controllers
     public class UsersController : ControllerBase
     {
         private AppDbContext _dbContext;
-        private IPasswordHasher<User> _passwrodHasher;
+        private IPasswordHasher<Entities.User> _passwrodHasher;
         private IIdentityService _identityService;
         private SignInManager<IdentityUser> _signInManager;
+        private IAccessTokenService _tokenService;
 
-        public UsersController(AppDbContext dbContext, IPasswordHasher<User> passwordHasher, IIdentityService identityService, SignInManager<IdentityUser> signInManager)
+        public UsersController(AppDbContext dbContext, IPasswordHasher<Entities.User> passwordHasher, IIdentityService identityService,
+            SignInManager<IdentityUser> signInManager)
         {
             _dbContext = dbContext;
             _passwrodHasher = passwordHasher;
@@ -34,10 +37,14 @@ namespace ZPP.Server.Controllers
         }
 
         // GET: api/Users
-        [HttpGet]
+        [HttpGet("/api/me")]
+        [JwtAuth("students")]
         public IActionResult Get()
         {
-            return Ok();
+
+            int userId = Int32.Parse(User.Identity.Name);
+            var user = _dbContext.Users.FirstOrDefault(x => x.Id == userId);
+            return Ok(new UserDto { Login = user.Login, Email = user.Email, Surname = user.Surname, Name = user.Name });
         }
 
         // POST: api/sign-up
@@ -76,26 +83,26 @@ namespace ZPP.Server.Controllers
         }
 
         [HttpGet("/sign-in-google")]
-        public IActionResult SignInByGoogle()
+        public async Task<IActionResult> SignInByGoogleAsync()
         {
-            var authenticationProperties = _signInManager.ConfigureExternalAuthenticationProperties("Google", "/external-handler");
+            var authenticationProperties = _signInManager.ConfigureExternalAuthenticationProperties("Google", "/handle-auth");
             return Challenge(authenticationProperties, "Google");
         }
         [HttpGet("/sign-in-facebook")]
         public IActionResult SignInByFacebook()
         {
-            var authenticationProperties = _signInManager.ConfigureExternalAuthenticationProperties("Facebook", "/external-handler");
+            var authenticationProperties = _signInManager.ConfigureExternalAuthenticationProperties("Facebook", "/handle-auth");
             return Challenge(authenticationProperties, "Facebook");
         }
 
-        [HttpGet("/external-handler")]
-        public async Task<IActionResult> HandleExternalLogin()
+
+
+        [HttpGet("/handle-auth")]
+        public async Task<IActionResult> HandleLoginAsync()
         {
-            //Debug.WriteLine("Signed in");
             string email;
             try
             {
-
                 var info = await _signInManager.GetExternalLoginInfoAsync();
                 email = info.Principal.FindFirstValue(ClaimTypes.Email);
             }
@@ -112,7 +119,7 @@ namespace ZPP.Server.Controllers
                     return Redirect("/");
                 if (isNewUser)
                 {
-                    var newUser = new User()
+                    var newUser = new Entities.User()
                     {
                         Login = email,
                         Email = email,
@@ -130,12 +137,6 @@ namespace ZPP.Server.Controllers
             {
                 return BadRequest("Nie można zalogować do aplikacji");
             }
-        }
-
-        // PUT: api/Users/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
         }
 
         // DELETE: api/ApiWithActions/5

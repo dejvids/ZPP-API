@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -50,6 +51,14 @@ namespace ZPP.Server
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("admins", policy => policy.RequireRole("admin"));
+                options.AddPolicy("students", policy => policy.RequireRole("student"));
+                options.AddPolicy("lecturers", policy => policy.RequireRole("lecturer"));
+                options.AddPolicy("companies", policy => policy.RequireRole("role"));
+                options.AddPolicy("participants", policy => policy.RequireRole("student", "lecturer"));
+            });
             services.AddJwt();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
@@ -69,6 +78,7 @@ namespace ZPP.Server
             }
             app.UseCors("CorsPolicy");
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
             app.UseAuthentication();
             app.UseMvc(options =>
                 {
