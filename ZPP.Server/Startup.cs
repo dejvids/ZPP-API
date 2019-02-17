@@ -53,11 +53,11 @@ namespace ZPP.Server
 
             services.AddAuthorization(options =>
             {
+                options.AddPolicy("users", policy => policy.RequireRole("student", "lecturer", "admin"));
                 options.AddPolicy("admins", policy => policy.RequireRole("admin"));
-                options.AddPolicy("students", policy => policy.RequireRole("student"));
-                options.AddPolicy("lecturers", policy => policy.RequireRole("lecturer"));
-                options.AddPolicy("companies", policy => policy.RequireRole("role"));
-                options.AddPolicy("participants", policy => policy.RequireRole("student", "lecturer"));
+                options.AddPolicy("students", policy => policy.RequireRole("student","admin"));
+                options.AddPolicy("lecturers", policy => policy.RequireRole("lecturer","admin"));
+                options.AddPolicy("companies", policy => policy.RequireRole("role","admin"));
             });
             services.AddJwt();
 

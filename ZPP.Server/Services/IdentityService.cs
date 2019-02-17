@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Authentication;
 using System.Threading.Tasks;
 using ZPP.Server.Authentication;
 using ZPP.Server.Dtos;
@@ -43,12 +44,12 @@ namespace ZPP.Server.Services
             }
             if (user == null || !user.ValidatePassword(password, _passwordHasher))
             {
-                throw new Exception("Invalid credentials.");
+                throw new InvalidCredentialException();
             }
 
             if(!user.IsActive)
             {
-                throw new Exception("Account is inactive");
+                throw new InactiveAccountException();
             }
 
             var claims = await _claimsProvider.GetAsync(user.Id);
@@ -61,12 +62,12 @@ namespace ZPP.Server.Services
             var user = dbContext.Users.FirstOrDefault(x => x.Email == email.ToUpper());
             if (user == null)
             {
-                throw new Exception("Invalid credentials.");
+                throw new InvalidCredentialException();
             }
 
             if(!user.IsActive)
             {
-                throw new Exception("Account is inactive");
+                throw new InactiveAccountException();
             }
 
             var claims = await _claimsProvider.GetAsync(user.Id);
@@ -80,7 +81,7 @@ namespace ZPP.Server.Services
             var user = dbContext.Users.FirstOrDefault(x => x.Email.ToUpper() == userModel.Email.ToUpper() || x.Login == userModel.Login);
             if (user != null)
             {
-                throw new Exception("User with this login or email already exists");
+                throw new ExistingUserException();
             }
 
             user = new User();

@@ -38,10 +38,6 @@ namespace ZPP.Server.Authentication
             .AddDefaultTokenProviders();
             services.AddAuthentication(options =>
             {
-                //options.DefaultChallengeScheme = FacebookDefaults.AuthenticationScheme;
-                //options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                //options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-
                 options.DefaultSignOutScheme = IdentityConstants.ApplicationScheme;
             })
           .AddJwtBearer(cfg =>
@@ -64,7 +60,7 @@ namespace ZPP.Server.Authentication
              {
                  OnRemoteFailure = (RemoteFailureContext context) =>
                  {
-                     context.Response.Redirect("/error");
+                     context.Response.Redirect("/signin-failed");
                      context.HandleResponse();
                      return Task.CompletedTask;
                  },
@@ -79,7 +75,7 @@ namespace ZPP.Server.Authentication
              {
                  OnRemoteFailure = (RemoteFailureContext context) =>
                  {
-                     context.Response.Redirect("/");
+                     context.Response.Redirect("/signin-failed");
                      context.HandleResponse();
                      return Task.CompletedTask;
                  },

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,11 +60,19 @@ namespace ZPP.Server.Models
                 new Role { Id = 3, Name = "lecturer" },
                 new Role { Id = 4, Name = "company" });
 
-            modelBuilder.Entity<Entities.User>().HasData(
+
+            var users = new List<User>
+            {
                 new Entities.User { Id = 1, Login = "admin", Email = "admin@zpp.com", IsActive = true, RoleId = 1, Name = "Admin", Surname = "ZPP" },
                 new Entities.User { Id = 2, Login = "dsurys", Email = "dawid.surys@pollub.edu.pl", IsActive = true, RoleId = 2, Name = "Dawid", Surname = "Suryś" },
                 new Entities.User { Id = 3, Login = "tKowalczyk", Email = "tomasz.kowalczyk@bs.pl", IsActive = true, RoleId = 3, Name = "Tomasz", Surname = "Kowalczyk", CompanyId = 1 },
-                new Entities.User { Id = 4, Login = "Asseco official", Email = "assecok@bs.pl", IsActive = true, RoleId = 4, CompanyId = 1 });
+                new Entities.User { Id = 4, Login = "Asseco official", Email = "assecok@bs.pl", IsActive = true, RoleId = 4, CompanyId = 1 }
+            };
+
+            var passwordHasher = new PasswordHasher<User>();
+            users.ForEach(user => user.SetPassword("123456", passwordHasher));
+            modelBuilder.Entity<Entities.User>().HasData(users);
+
 
             modelBuilder.Entity<Lecture>().HasData(
                 new Lecture { Id = 1, Date = new DateTime(2019, 02, 20), Name = "Wykład testowy 1", Description = "Wykład testowy, używany w fazie rozwijania", Place = "Wydział Elektryczny E201" },
