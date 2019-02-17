@@ -3,17 +3,15 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ZPP.Server.Models;
 
 namespace ZPP.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20190210221147_initMigration")]
-    partial class initMigration
+    partial class AppDbContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,6 +32,18 @@ namespace ZPP.Server.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Companies");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Asseco BS"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Sii"
+                        });
                 });
 
             modelBuilder.Entity("ZPP.Server.Entities.Lecture", b =>
@@ -57,35 +67,59 @@ namespace ZPP.Server.Migrations
                     b.HasIndex("LecturerId");
 
                     b.ToTable("Lectures");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Date = new DateTime(2019, 2, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Wykład testowy, używany w fazie rozwijania",
+                            Name = "Wykład testowy 1",
+                            Place = "Wydział Elektryczny E201"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Date = new DateTime(2019, 2, 27, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Praktyczne zastosowanie wzorców projektowych",
+                            LecturerId = 3,
+                            Name = "Wzorce projektowe",
+                            Place = "Wydział Elektryczny E201"
+                        });
                 });
 
             modelBuilder.Entity("ZPP.Server.Entities.Opinion", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<int>("StudentId");
+
+                    b.Property<int>("LectureId");
 
                     b.Property<string>("Comment");
 
                     b.Property<DateTime>("Date");
 
-                    b.Property<int>("LectureId");
-
                     b.Property<int>("LecturerMark");
 
                     b.Property<int>("RecommendationChance");
 
-                    b.Property<int>("StudentId");
-
                     b.Property<int>("SubjectMark");
 
-                    b.HasKey("Id");
+                    b.HasKey("StudentId", "LectureId");
 
                     b.HasIndex("LectureId");
 
-                    b.HasIndex("StudentId");
-
                     b.ToTable("Opinions");
+
+                    b.HasData(
+                        new
+                        {
+                            StudentId = 2,
+                            LectureId = 1,
+                            Date = new DateTime(2019, 2, 17, 15, 21, 20, 968, DateTimeKind.Utc).AddTicks(7844),
+                            LecturerMark = 5,
+                            RecommendationChance = 5,
+                            SubjectMark = 5
+                        });
                 });
 
             modelBuilder.Entity("ZPP.Server.Entities.Participant", b =>
@@ -103,6 +137,15 @@ namespace ZPP.Server.Migrations
                     b.HasIndex("LectureId");
 
                     b.ToTable("Participants");
+
+                    b.HasData(
+                        new
+                        {
+                            StudentId = 2,
+                            LectureId = 1,
+                            HasLeft = false,
+                            Present = true
+                        });
                 });
 
             modelBuilder.Entity("ZPP.Server.Entities.Role", b =>
@@ -116,6 +159,28 @@ namespace ZPP.Server.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "admin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "student"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "lecturer"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "company"
+                        });
                 });
 
             modelBuilder.Entity("ZPP.Server.Entities.User", b =>
@@ -124,7 +189,7 @@ namespace ZPP.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("CompanyId");
+                    b.Property<int?>("CompanyId");
 
                     b.Property<string>("Email");
 
@@ -147,6 +212,52 @@ namespace ZPP.Server.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Email = "admin@zpp.com",
+                            IsActive = true,
+                            Login = "admin",
+                            Name = "Admin",
+                            PasswordHash = "AQAAAAEAACcQAAAAEH61BB2ol71COX+U34fAt7j/ejYI1G/hD45kQjugZhqUaxxYXlqHCozAmCvY+moQyg==",
+                            RoleId = 1,
+                            Surname = "ZPP"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Email = "dawid.surys@pollub.edu.pl",
+                            IsActive = true,
+                            Login = "dsurys",
+                            Name = "Dawid",
+                            PasswordHash = "AQAAAAEAACcQAAAAEO9gIHT2XLb0VyUFwBH0WXdTSkKR/SbJxaVxlJYj16cZP3N0y+fXXmVIExdjK5H67w==",
+                            RoleId = 2,
+                            Surname = "Suryś"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CompanyId = 1,
+                            Email = "tomasz.kowalczyk@bs.pl",
+                            IsActive = true,
+                            Login = "tKowalczyk",
+                            Name = "Tomasz",
+                            PasswordHash = "AQAAAAEAACcQAAAAEO+Q1oKtEabjibSdGEOb5/zY/qUzsueNTe9dB2JV3JFtECYFWf6op0axoOJB8IGWGA==",
+                            RoleId = 3,
+                            Surname = "Kowalczyk"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CompanyId = 1,
+                            Email = "assecok@bs.pl",
+                            IsActive = true,
+                            Login = "Asseco official",
+                            PasswordHash = "AQAAAAEAACcQAAAAEBuKs1b8u4gdGwAjtTnm6LsM1hBZCLZHavAid48ACECTly2Ybk9D8PBKYXOQgM//jQ==",
+                            RoleId = 4
+                        });
                 });
 
             modelBuilder.Entity("ZPP.Server.Entities.VerificationCode", b =>
@@ -195,7 +306,7 @@ namespace ZPP.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("ZPP.Server.Entities.User", "Student")
-                        .WithMany("Participants")
+                        .WithMany("UserLectures")
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
@@ -204,8 +315,7 @@ namespace ZPP.Server.Migrations
                 {
                     b.HasOne("ZPP.Server.Entities.Company", "Company")
                         .WithMany()
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("CompanyId");
 
                     b.HasOne("ZPP.Server.Entities.Role", "Role")
                         .WithMany()

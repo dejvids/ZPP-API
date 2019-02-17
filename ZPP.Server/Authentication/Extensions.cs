@@ -8,6 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Facebook;
 
 namespace ZPP.Server.Authentication
 {
@@ -34,38 +36,51 @@ namespace ZPP.Server.Authentication
             })
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
-            services.AddAuthentication(o =>
+            services.AddAuthentication(options =>
             {
-                o.DefaultSignOutScheme = IdentityConstants.ApplicationScheme;
-            }
-            )
-
-                .AddJwtBearer(cfg =>
-                {
-                    cfg.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
-                        ValidIssuer = jwtOptions.Issuer,
-                        ValidAudience = jwtOptions.ValidAudience,
-                        ValidateAudience = jwtOptions.ValidateAudience,
-                        ValidateLifetime = jwtOptions.ValidateLifetime
-                    };
-                })
-                .AddGoogle("Google", googleOptions =>
-                {
-                    googleOptions.CallbackPath = new PathString("/signin-google");
-                    googleOptions.ClientId = configuration["Authentication:Google:client_id"];
-                    googleOptions.ClientSecret = configuration["Authentication:Google:client_secret"];
-                    googleOptions.Events = new OAuthEvents
-                    {
-                        OnRemoteFailure = (RemoteFailureContext context) =>
-                        {
-                            context.Response.Redirect("/");
-                            context.HandleResponse();
-                            return Task.CompletedTask;
-                        },
-                    };
-                });
+                options.DefaultSignOutScheme = IdentityConstants.ApplicationScheme;
+            })
+          .AddJwtBearer(cfg =>
+             {
+                 cfg.TokenValidationParameters = new TokenValidationParameters
+                 {
+                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
+                     ValidIssuer = jwtOptions.Issuer,
+                     ValidAudience = jwtOptions.ValidAudience,
+                     ValidateAudience = jwtOptions.ValidateAudience,
+                     ValidateLifetime = jwtOptions.ValidateLifetime
+                 };
+             })
+         .AddGoogle("Google", googleOptions =>
+         {
+             //googleOptions.CallbackPath = new PathString("/external-handler");
+             googleOptions.ClientId = configuration["Authentication:Google:client_id"];
+             googleOptions.ClientSecret = configuration["Authentication:Google:client_secret"];
+             googleOptions.Events = new OAuthEvents
+             {
+                 OnRemoteFailure = (RemoteFailureContext context) =>
+                 {
+                     context.Response.Redirect("/signin-failed");
+                     context.HandleResponse();
+                     return Task.CompletedTask;
+                 },
+             };
+         })
+         .AddFacebook(facebookOptions =>
+         {
+             // facebookOptions.CallbackPath = new PathString("/signin-facebook");
+             facebookOptions.AppId = configuration["Authentication:Facebook:AppId"];
+             facebookOptions.AppSecret = configuration["Authentication:Facebook:AppSecret"];
+             facebookOptions.Events = new OAuthEvents
+             {
+                 OnRemoteFailure = (RemoteFailureContext context) =>
+                 {
+                     context.Response.Redirect("/signin-failed");
+                     context.HandleResponse();
+                     return Task.CompletedTask;
+                 },
+             };
+         }).AddCookie();
         }
     }
 }

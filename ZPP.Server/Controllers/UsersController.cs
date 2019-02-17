@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Authentication;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
+using ZPP.Server.Authentication;
 using ZPP.Server.Dtos;
 using ZPP.Server.Entities;
 using ZPP.Server.Models;
@@ -21,11 +23,13 @@ namespace ZPP.Server.Controllers
     public class UsersController : ControllerBase
     {
         private AppDbContext _dbContext;
-        private IPasswordHasher<User> _passwrodHasher;
+        private IPasswordHasher<Entities.User> _passwrodHasher;
         private IIdentityService _identityService;
         private SignInManager<IdentityUser> _signInManager;
+        private IAccessTokenService _tokenService;
 
-        public UsersController(AppDbContext dbContext, IPasswordHasher<User> passwordHasher, IIdentityService identityService, SignInManager<IdentityUser> signInManager)
+        public UsersController(AppDbContext dbContext, IPasswordHasher<Entities.User> passwordHasher, IIdentityService identityService,
+            SignInManager<IdentityUser> signInManager)
         {
             _dbContext = dbContext;
             _passwrodHasher = passwordHasher;
@@ -34,10 +38,14 @@ namespace ZPP.Server.Controllers
         }
 
         // GET: api/Users
-        [HttpGet]
+        [HttpGet("/api/me")]
+        [JwtAuth("users")]
         public IActionResult Get()
         {
-            return Ok();
+
+            int userId = Int32.Parse(User.Identity.Name);
+            var user = _dbContext.Users.FirstOrDefault(x => x.Id == userId);
+            return Ok(new UserDto { Login = user.Login, Email = user.Email, Surname = user.Surname, Name = user.Name });
         }
 
         // POST: api/sign-up
@@ -47,17 +55,22 @@ namespace ZPP.Server.Controllers
         {
             if (user == null || user.Login == null || user.Email == null)
             {
-                return BadRequest("Nie podano wymaganych danych ro rejestracji");
+                return BadRequest(new SignUpResult(false,"Nie podano wymaganych danych ro rejestracji"));
             }
             try
             {
                 await _identityService.SignUpAsync(_dbContext, user);
             }
+            catch(ExistingUserException)
+            {
+                return BadRequest(new SignUpResult(false, "Użytkownik o podanym loginie lub adresie e-mail już istnieje"));
+            }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                Log.Error($"Sign up failed {ex.Message}");
+                return BadRequest(new SignUpResult(false, "Rejestracja zakończona niepowodzeniem"));
             }
-            return Ok();
+            return Ok(new SignUpResult(true, "Rejestracja zakończona pomyślnie"));
         }
 
         [HttpPost("/api/sign-in")]
@@ -69,33 +82,46 @@ namespace ZPP.Server.Controllers
                 var token = await _identityService.SignInAsync(_dbContext, user.Login, user.Password);
                 return Ok(new SignInResult(true, null, token));
             }
-            catch (Exception)
+            catch(InvalidCredentialException)
             {
+                return BadRequest(new SignInResult(false, "Niepoprawna nazwa użytkownika lub hasło", null));
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Login failed {ex.Message}");
                 return BadRequest(new SignInResult(false, "Nieudana próba logowania", null));
             }
         }
 
         [HttpGet("/sign-in-google")]
-        public IActionResult SignInByGoogle()
+        public IActionResult SignInByGoogleAsync()
         {
-            var authenticationProperties = _signInManager.ConfigureExternalAuthenticationProperties("Google", "/google-handler");
+            var authenticationProperties = _signInManager.ConfigureExternalAuthenticationProperties("Google", "/handle-auth");
             return Challenge(authenticationProperties, "Google");
         }
 
-        [HttpGet("/google-handler")]
-        public async Task<IActionResult> HandleExternalLogin()
+        [HttpGet("/sign-in-facebook")]
+        public IActionResult SignInByFacebook()
         {
-            //Debug.WriteLine("Signed in");
+            var authenticationProperties = _signInManager.ConfigureExternalAuthenticationProperties("Facebook", "/handle-auth");
+            return Challenge(authenticationProperties, "Facebook");
+        }
+
+
+
+        [HttpGet("/handle-auth")]
+        public async Task<IActionResult> HandleLoginAsync()
+        {
             string email;
             try
             {
-
                 var info = await _signInManager.GetExternalLoginInfoAsync();
                 email = info.Principal.FindFirstValue(ClaimTypes.Email);
             }
             catch (Exception ex)
             {
-                return BadRequest("Błąd zewnętrznego dostawcy uwierzytelniania");
+                Log.Error(ex.Message);
+                return BadRequest(new SignInResult(false,"Błąd zewnętrznego dostawcy uwierzytelniania", null));
             }
 
             try
@@ -103,14 +129,15 @@ namespace ZPP.Server.Controllers
 
                 bool isNewUser = !_dbContext.Users.Any(x => x.Email.ToUpper() == email.ToUpper());
                 if (string.IsNullOrEmpty(email))
-                    return Redirect("/api/sign-in-google");
+                    return Redirect("/signin-failed");
                 if (isNewUser)
                 {
                     var newUser = new User()
                     {
                         Login = email,
                         Email = email,
-                        RoleId = 2
+                        RoleId = 2,
+                        IsActive = true
                     };
 
                     _dbContext.Users.Add(newUser);
@@ -122,20 +149,22 @@ namespace ZPP.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest("Nie można zalogować do aplikacji");
+                Log.Error(ex.Message);
+                return BadRequest(new SignInResult(false, "Logowanie zakończone niepowodzeniem", null));
             }
         }
 
-        // PUT: api/Users/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpGet("/signin-failed")]
+        public IActionResult SignInFailed()
         {
+            Log.Error("External sigin fialed");
+            return BadRequest(new SignInResult(false, "Nieudane logowanie", null));
         }
 
         // DELETE: api/ApiWithActions/5
         [HttpDelete("{id}")]
         public void Delete(int id)
-        {
-        }
+        {}
+
     }
 }

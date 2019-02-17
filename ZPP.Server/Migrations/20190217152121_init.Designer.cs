@@ -10,8 +10,8 @@ using ZPP.Server.Models;
 namespace ZPP.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20190210223804_data")]
-    partial class data
+    [Migration("20190217152121_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -117,7 +117,7 @@ namespace ZPP.Server.Migrations
                         {
                             StudentId = 2,
                             LectureId = 1,
-                            Date = new DateTime(2019, 2, 10, 22, 38, 3, 235, DateTimeKind.Utc).AddTicks(9897),
+                            Date = new DateTime(2019, 2, 17, 15, 21, 20, 968, DateTimeKind.Utc).AddTicks(7844),
                             LecturerMark = 5,
                             RecommendationChance = 5,
                             SubjectMark = 5
@@ -223,6 +223,7 @@ namespace ZPP.Server.Migrations
                             IsActive = true,
                             Login = "admin",
                             Name = "Admin",
+                            PasswordHash = "AQAAAAEAACcQAAAAEH61BB2ol71COX+U34fAt7j/ejYI1G/hD45kQjugZhqUaxxYXlqHCozAmCvY+moQyg==",
                             RoleId = 1,
                             Surname = "ZPP"
                         },
@@ -233,6 +234,7 @@ namespace ZPP.Server.Migrations
                             IsActive = true,
                             Login = "dsurys",
                             Name = "Dawid",
+                            PasswordHash = "AQAAAAEAACcQAAAAEO9gIHT2XLb0VyUFwBH0WXdTSkKR/SbJxaVxlJYj16cZP3N0y+fXXmVIExdjK5H67w==",
                             RoleId = 2,
                             Surname = "Suryś"
                         },
@@ -244,6 +246,7 @@ namespace ZPP.Server.Migrations
                             IsActive = true,
                             Login = "tKowalczyk",
                             Name = "Tomasz",
+                            PasswordHash = "AQAAAAEAACcQAAAAEO+Q1oKtEabjibSdGEOb5/zY/qUzsueNTe9dB2JV3JFtECYFWf6op0axoOJB8IGWGA==",
                             RoleId = 3,
                             Surname = "Kowalczyk"
                         },
@@ -254,6 +257,7 @@ namespace ZPP.Server.Migrations
                             Email = "assecok@bs.pl",
                             IsActive = true,
                             Login = "Asseco official",
+                            PasswordHash = "AQAAAAEAACcQAAAAEBuKs1b8u4gdGwAjtTnm6LsM1hBZCLZHavAid48ACECTly2Ybk9D8PBKYXOQgM//jQ==",
                             RoleId = 4
                         });
                 });
