@@ -1,7 +1,7 @@
 @page "/sign-in"
 @inject HttpClient Http
 @inject Microsoft.AspNetCore.Blazor.Services.IUriHelper UriHelper
-@inject Blazor.Extensions.Storage.SessionStorage sessionStorage
+@inject SessionStorage sessionStorage
 
 @using System.Diagnostics;
 @using ZPP_Blazor.Models;
@@ -17,7 +17,7 @@
     public async void SignInApp()
     {
         System.Diagnostics.Debug.WriteLine("Logowanie");
-        var user = new { Login = "dsurys", Password = "123456" };
+        var user = new { Login = "jkowalski", Password = "123456" };
         var content = new StringContent(Json.Serialize(user), System.Text.Encoding.UTF8, "application/json");
         var result = await Http.PostAsync(@"http://localhost:5000/api/sign-in", content);
 
@@ -25,7 +25,9 @@
         var obj = Json.Deserialize<SignInResult>(response);
         if (obj.Success)
         {
-            sessionStorage.SetItem<JsonWebToken>("accessToken", obj.Token);
+            AppCtx.AccessToken = obj.Token.AccessToken;
+            sessionStorage.SetItem<JsonWebToken>("accessToken", obj.Token);  
+            //Http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", obj.Token.AccessToken);
             UriHelper.NavigateTo("/me");
         }
         else
