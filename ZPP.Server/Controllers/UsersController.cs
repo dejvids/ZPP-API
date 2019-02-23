@@ -42,7 +42,6 @@ namespace ZPP.Server.Controllers
         [JwtAuth("users")]
         public IActionResult Get()
         {
-
             int userId = Int32.Parse(User.Identity.Name);
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == userId);
             return Ok(new UserDto { Login = user.Login, Email = user.Email, Surname = user.Surname, Name = user.Name });
