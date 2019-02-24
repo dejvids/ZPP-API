@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Blazor.Hosting;
 
-namespace ZPP.Blazor
+namespace ZPP_Blazor
 {
     public class Program
     {
