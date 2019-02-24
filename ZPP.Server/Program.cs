@@ -23,7 +23,7 @@ namespace ZPP.Server
             .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
             .Enrich.FromLogContext()
             .WriteTo.File(
-                @"..\logs\zpp_server.log",
+                $@"..\logs\zpp_server{DateTime.Now.ToString("yyyy-MM-dd")}.log",
                 fileSizeLimitBytes: 1_000_1000,
                 rollOnFileSizeLimit: true,
                 shared: true,
