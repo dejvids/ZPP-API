@@ -27,6 +27,7 @@ namespace ZPP.Server.Controllers
         private IIdentityService _identityService;
         private SignInManager<IdentityUser> _signInManager;
         private IAccessTokenService _tokenService;
+        private string _blazorClient = @"http://localhost:5003/signin-external";
 
         public UsersController(AppDbContext dbContext, IPasswordHasher<Entities.User> passwordHasher, IIdentityService identityService,
             SignInManager<IdentityUser> signInManager)
@@ -54,13 +55,13 @@ namespace ZPP.Server.Controllers
         {
             if (user == null || user.Login == null || user.Email == null)
             {
-                return BadRequest(new SignUpResult(false,"Nie podano wymaganych danych ro rejestracji"));
+                return BadRequest(new SignUpResult(false, "Nie podano wymaganych danych ro rejestracji"));
             }
             try
             {
                 await _identityService.SignUpAsync(_dbContext, user);
             }
-            catch(ExistingUserException)
+            catch (ExistingUserException)
             {
                 return BadRequest(new SignUpResult(false, "Użytkownik o podanym loginie lub adresie e-mail już istnieje"));
             }
@@ -81,7 +82,7 @@ namespace ZPP.Server.Controllers
                 var token = await _identityService.SignInAsync(_dbContext, user.Login, user.Password);
                 return Ok(new SignInResult(true, null, token));
             }
-            catch(InvalidCredentialException)
+            catch (InvalidCredentialException)
             {
                 return BadRequest(new SignInResult(false, "Niepoprawna nazwa użytkownika lub hasło", null));
             }
@@ -120,7 +121,53 @@ namespace ZPP.Server.Controllers
             catch (Exception ex)
             {
                 Log.Error(ex.Message);
-                return BadRequest(new SignInResult(false,"Błąd zewnętrznego dostawcy uwierzytelniania", null));
+                return BadRequest(new SignInResult(false, "Błąd zewnętrznego dostawcy uwierzytelniania", null));
+            }
+
+            try
+            {
+
+                bool isNewUser = !_dbContext.Users.Any(x => x.Email.ToUpper() == email.ToUpper());
+                if (string.IsNullOrEmpty(email))
+                    return Redirect("/signin-failed");
+                if (isNewUser)
+                {
+                    var newUser = new User()
+                    {
+                        Login = email,
+                        Email = email,
+                        RoleId = 2,
+                        IsActive = true
+                    };
+
+                    _dbContext.Users.Add(newUser);
+                    await _dbContext.SaveChangesAsync();
+                }
+                var token = await _identityService.SignInAsync(_dbContext, email);
+
+                return Redirect($@"{_blazorClient}?token={token.AccessToken}&expires={token.Expires}&role={token.Role}");
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+                return BadRequest(new SignInResult(false, "Logowanie zakończone niepowodzeniem", null));
+            }
+
+        }
+
+        [Route("/api/signin-external")]
+        public async Task<IActionResult> SignInExternal()
+        {
+            string email;
+            try
+            {
+                var info = await _signInManager.GetExternalLoginInfoAsync();
+                email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+                return BadRequest(new SignInResult(false, "Błąd zewnętrznego dostawcy uwierzytelniania", null));
             }
 
             try
@@ -163,7 +210,7 @@ namespace ZPP.Server.Controllers
         // DELETE: api/ApiWithActions/5
         [HttpDelete("{id}")]
         public void Delete(int id)
-        {}
+        { }
 
     }
 }

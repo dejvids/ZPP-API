@@ -27,6 +27,7 @@ namespace ZPP_Blazor.Components
         {
 #if DEBUG
             Http.BaseAddress = new Uri(_developBaseAddress);
+            AppCtx.BaseAddress = _developBaseAddress;
 #endif
             return base.OnInitAsync();
         }
