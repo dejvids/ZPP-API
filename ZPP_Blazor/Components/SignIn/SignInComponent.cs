@@ -8,29 +8,51 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using ZPP_Blazor.Models;
+using ZPP_Blazor.Services;
 
 namespace ZPP_Blazor.Components.SignIn
 {
-    public class SignInComponent :BaseComponent
+    public class SignInComponent : BaseComponent
     {
+        [Inject]
+        public SignInService SignInService { get; set; }
         public string Result { get; set; }
-        public async void SignInApp()
+        public async Task SignInApp()
         {
             Console.WriteLine("Logowanie");
             var user = new { Login = "dsurys", Password = "123456" };
             var content = new StringContent(Json.Serialize(user), System.Text.Encoding.UTF8, "application/json");
             var result = await Http.PostAsync(@"/api/sign-in", content);
-
-            var response = await result.Content.ReadAsStringAsync();
-            var obj = Json.Deserialize<SignInResult>(response);
-            if (obj.Success)
+            Console.WriteLine(result);
+            if (SignInService is null)
             {
-                AppCtx.AccessToken = obj.Token.AccessToken;
-                await SessionStorage.SetItem<JsonWebToken>("accessToken", obj.Token);
-                UriHelper.NavigateTo("/me");
+                Console.WriteLine("Sign in null");
+                return;
             }
-            else
-                Console.WriteLine(obj.Message);
+            if(result == null)
+            {
+                Console.WriteLine("Result null");
+                return;
+            }
+            bool isOk = await SignInService.HandleSignIn(result);
+            if(isOk)
+                UriHelper.NavigateTo("/me");
+        }
+
+
+
+        public void SignInFacebook()
+        {
+            Console.WriteLine("Facebook login");
+
+            UriHelper.NavigateTo($"{AppCtx.BaseAddress}/sign-in-facebook");
+            // await HandleSignIn(result);
+        }
+
+        public void SignInGoogle()
+        {
+            Console.WriteLine("Google login");
+            UriHelper.NavigateTo($"{AppCtx.BaseAddress}/sign-in-google");
         }
     }
 }
