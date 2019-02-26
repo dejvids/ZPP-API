@@ -90,21 +90,27 @@ namespace ZPP.Server.Migrations
 
             modelBuilder.Entity("ZPP.Server.Entities.Opinion", b =>
                 {
-                    b.Property<int>("StudentId");
-
-                    b.Property<int>("LectureId");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Comment");
 
                     b.Property<DateTime>("Date");
 
+                    b.Property<int>("LectureId");
+
                     b.Property<int>("LecturerMark");
 
                     b.Property<int>("RecommendationChance");
 
+                    b.Property<int>("StudentId");
+
                     b.Property<int>("SubjectMark");
 
-                    b.HasKey("StudentId", "LectureId");
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("StudentId", "LectureId");
 
                     b.HasIndex("LectureId");
 
@@ -113,11 +119,12 @@ namespace ZPP.Server.Migrations
                     b.HasData(
                         new
                         {
-                            StudentId = 2,
+                            Id = 1,
+                            Date = new DateTime(2019, 2, 26, 22, 21, 54, 378, DateTimeKind.Utc).AddTicks(4212),
                             LectureId = 1,
-                            Date = new DateTime(2019, 2, 17, 15, 21, 20, 968, DateTimeKind.Utc).AddTicks(7844),
                             LecturerMark = 5,
                             RecommendationChance = 5,
+                            StudentId = 2,
                             SubjectMark = 5
                         });
                 });
@@ -221,7 +228,7 @@ namespace ZPP.Server.Migrations
                             IsActive = true,
                             Login = "admin",
                             Name = "Admin",
-                            PasswordHash = "AQAAAAEAACcQAAAAEH61BB2ol71COX+U34fAt7j/ejYI1G/hD45kQjugZhqUaxxYXlqHCozAmCvY+moQyg==",
+                            PasswordHash = "AQAAAAEAACcQAAAAELfdo+dvSLiXmfaCcoIh3jBD4V1ysf0PGed3GaIR8+58+x1k/DHUFy8YyvYMyqQrHw==",
                             RoleId = 1,
                             Surname = "ZPP"
                         },
@@ -232,7 +239,7 @@ namespace ZPP.Server.Migrations
                             IsActive = true,
                             Login = "dsurys",
                             Name = "Dawid",
-                            PasswordHash = "AQAAAAEAACcQAAAAEO9gIHT2XLb0VyUFwBH0WXdTSkKR/SbJxaVxlJYj16cZP3N0y+fXXmVIExdjK5H67w==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEDNO1ADLBOhOOVPLcVpGr089zcNGYnNiOgAP3trHv6lh6D0jQVuat2PAV9nJteFpSA==",
                             RoleId = 2,
                             Surname = "Suryś"
                         },
@@ -244,7 +251,7 @@ namespace ZPP.Server.Migrations
                             IsActive = true,
                             Login = "tKowalczyk",
                             Name = "Tomasz",
-                            PasswordHash = "AQAAAAEAACcQAAAAEO+Q1oKtEabjibSdGEOb5/zY/qUzsueNTe9dB2JV3JFtECYFWf6op0axoOJB8IGWGA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAENL0c5zZfHgMsWqNDHfKrV9GDqmKHCcuC5QDzGzUieDM2M5m3YFnVrY3KwCUHELpDA==",
                             RoleId = 3,
                             Surname = "Kowalczyk"
                         },
@@ -255,7 +262,7 @@ namespace ZPP.Server.Migrations
                             Email = "assecok@bs.pl",
                             IsActive = true,
                             Login = "Asseco official",
-                            PasswordHash = "AQAAAAEAACcQAAAAEBuKs1b8u4gdGwAjtTnm6LsM1hBZCLZHavAid48ACECTly2Ybk9D8PBKYXOQgM//jQ==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEPE39i8911/hTNmki7iXMxD9TLpTySQOtg/ZjeBu3/5wB8GbLJDxN06Yo+Ay8K61NA==",
                             RoleId = 4
                         });
                 });
