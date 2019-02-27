@@ -35,7 +35,7 @@ namespace ZPP.Server.Controllers
 
             //Return all opinions for all lectures which meet the conditions if user is admin
             if (User.IsInRole("admin"))
-                return await opinions.Select(o=>new OpinionDto(o)).ToListAsync();
+                return await opinions.Select(o => new OpinionDto(o)).ToListAsync();
 
             //Return all opinions for all company lecturers if user is company
             if (User.IsInRole("company"))
@@ -43,28 +43,75 @@ namespace ZPP.Server.Controllers
                 var companyLecturers = _context.Users.Where(u => u.CompanyId == Int32.Parse(User.Identity.Name)).Select(u => (object)u.Id);
                 var lectures = _context.Lectures.Where(l => companyLecturers.Contains(l.LecturerId)).Select(l => l.Id);
 
-                return await opinions.Where(o => lectures.Contains(o.LectureId)).Select(o=>new OpinionDto(o)).ToListAsync();
+                return await opinions.Where(o => lectures.Contains(o.LectureId)).Select(o => new OpinionDto(o)).ToListAsync();
             }
 
             //Return only all opinions fo all user lectures
             var userLectures = _context.Lectures.Where(l => l.LecturerId == Int32.Parse(User.Identity.Name)).Select(l => l.Id);
 
-            return await opinions.Where(o => userLectures.Contains(o.LectureId)).Select(o=>new OpinionDto(o)).ToListAsync();
+            return await opinions.Where(o => userLectures.Contains(o.LectureId)).Select(o => new OpinionDto(o)).ToListAsync();
+        }
 
+        [HttpGet("/api/opinions/mine")]
+        [JwtAuth("students")]
+        public async Task<ActionResult<IEnumerable<OpinionDto>>> GetMyOpinions()
+        {
+            var opinions = _context.Opinions.Include(l=>l.Lecture).Where(l => l.StudentId == Int32.Parse(User.Identity.Name));
+
+            if (opinions.Count() == 0)
+            {
+                return NotFound();
+            }
+            return await opinions.Select(l => new OpinionDto(l)).ToListAsync();
         }
 
         // GET: api/Opinions/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Opinion>> GetOpinion(int id)
+        [JwtAuth("users")]
+        public async Task<ActionResult<OpinionDto>> GetOpinion(int id)
         {
-            var opinion = await _context.Opinions.FindAsync(id);
+            var opinion = await _context.Opinions.Include(x => x.Lecture).FirstOrDefaultAsync(x => x.Id == id);
 
             if (opinion == null)
             {
                 return NotFound();
             }
 
-            return Ok(new OpinionDto(opinion));
+            if (User.IsInRole("student"))
+            {
+                if (opinion.StudentId == Int32.Parse(User.Identity.Name))
+                {
+                    return Ok(new OpinionDto(opinion));
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            
+            if(User.IsInRole("lecturer"))
+            {
+                if(opinion.Lecture.LecturerId == Int32.Parse(User.Identity.Name))
+                {
+                    return Ok(new OpinionDto(opinion));
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+
+            if(User.IsInRole("company"))
+            {
+                var lecturers = _context.Users.Where(x => x.CompanyId == Int32.Parse(User.Identity.Name)).Select(x => (int?)x.Id).ToList();
+                if (lecturers.Contains(opinion.Lecture.LecturerId))
+                {
+                    return Ok(new OpinionDto(opinion));
+                }
+                else return NotFound();
+            }
+
+            return NotFound();
         }
 
         // PUT: api/Opinions/5
@@ -93,7 +140,8 @@ namespace ZPP.Server.Controllers
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                Log.Error(ex.Message);
+                Log.Error($"ex.Message {ex.Message}");
+                return BadRequest();
             }
 
             return NoContent();
@@ -114,7 +162,7 @@ namespace ZPP.Server.Controllers
                 SubjectMark = opinion.SubjectMark,
                 RecommendationChance = opinion.RecommendationChance
             };
-            
+
             _context.Opinions.Add(newOpinion);
             try
             {

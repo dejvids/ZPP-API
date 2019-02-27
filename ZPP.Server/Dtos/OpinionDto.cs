@@ -13,6 +13,7 @@ namespace ZPP.Server.Dtos
             LecturerMark = opinion.LecturerMark;
             RecommendationChance = opinion.RecommendationChance;
             Comment = opinion.Comment;
+            LectureName = opinion.Lecture?.Name;
         }
 
         public int OpinionId { get; set; }
@@ -22,5 +23,6 @@ namespace ZPP.Server.Dtos
         public int LecturerMark { get; set; }
         public int RecommendationChance { get; set; }
         public string Comment { get; set; }
+        public string LectureName { get; set; }
     }
 }

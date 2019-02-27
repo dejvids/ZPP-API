@@ -141,7 +141,7 @@ namespace ZPP.Server.Controllers
             lecture = new Lecture()
             {
                 Name = newLecture.Name,
-                Description = newLecture.Name,
+                Description = newLecture.Description,
                 Date = newLecture.Date,
                 Place = newLecture.Place,
                 LecturerId = newLecture.LecturerId
