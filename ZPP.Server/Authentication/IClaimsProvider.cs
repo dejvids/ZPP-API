@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ZPP.Server.Entities;
 
 namespace ZPP.Server.Authentication
 {
     public interface IClaimsProvider
     {
-        Task<IDictionary<string, string>> GetAsync(int userId);
+        IDictionary<string, string> GetAsync(User user);
     }
 }

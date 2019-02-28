@@ -52,8 +52,8 @@ namespace ZPP.Server.Services
                 throw new InactiveAccountException();
             }
 
-            var claims = await _claimsProvider.GetAsync(user.Id);
-            var jwt = _jwtHandler.CreateToken(user.Id.ToString(), user.Role.Name);
+            var claims = _claimsProvider.GetAsync(user);
+            var jwt = _jwtHandler.CreateToken(user.Id.ToString(), user.Role.Name, claims);
             return jwt;
         }
 
@@ -70,8 +70,8 @@ namespace ZPP.Server.Services
                 throw new InactiveAccountException();
             }
 
-            var claims = await _claimsProvider.GetAsync(user.Id);
-            var jwt = _jwtHandler.CreateToken(user.Id.ToString(), "student");
+            var claims = _claimsProvider.GetAsync(user);
+            var jwt = _jwtHandler.CreateToken(user.Id.ToString(), "student", claims);
 
             return jwt;
         }

@@ -57,6 +57,7 @@ namespace ZPP.Server.Authentication
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Iat, now.ToTimestamp().ToString()),
             };
+
             if (!string.IsNullOrWhiteSpace(role))
             {
                 jwtClaims.Add(new Claim(ClaimTypes.Role, role));

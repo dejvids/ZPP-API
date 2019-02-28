@@ -56,13 +56,44 @@ namespace ZPP.Server.Controllers
         [JwtAuth("students")]
         public async Task<ActionResult<IEnumerable<OpinionDto>>> GetMyOpinions()
         {
-            var opinions = _context.Opinions.Include(l=>l.Lecture).Where(l => l.StudentId == Int32.Parse(User.Identity.Name));
+            var opinions = _context.Opinions.Include(l => l.Lecture).Where(l => l.StudentId == Int32.Parse(User.Identity.Name));
 
             if (opinions.Count() == 0)
             {
                 return NotFound();
             }
             return await opinions.Select(l => new OpinionDto(l)).ToListAsync();
+        }
+
+        [HttpGet("/api/opinions/lecture/{id}")]
+        [JwtAuth("lecturers")]
+        public async Task<ActionResult<IEnumerable<OpinionDto>>> GetLectureOpinions(int id)
+        {
+            var lecture = await _context.Lectures.FirstOrDefaultAsync(x => x.Id == id);
+            if (lecture == null)
+            {
+                return NotFound();
+            }
+
+            if (User.IsInRole("lecturer") && lecture.LecturerId != Int32.Parse(User.Identity.Name))
+            {
+                return Forbid();
+            }
+
+            if (User.IsInRole("company"))
+            {
+                var cliams = User.Claims.Select(x => x.Properties).ToList();
+                var lecturers = _context.Users.Where(x => x.CompanyId == Int32.Parse(User.Claims.FirstOrDefault(c => c.Type == "cmp").Value)).Select(x => (int?)x.Id);
+                if (!lecturers.Contains(lecture.LecturerId))
+                {
+                    return Forbid();
+                }
+            }
+
+
+            var opinions = await _context.Opinions.Include(l => l.Lecture).Where(o => o.LectureId == id).ToListAsync();
+
+            return Ok(opinions.Select(x => new OpinionDto(x)));
         }
 
         // GET: api/Opinions/5
@@ -85,30 +116,30 @@ namespace ZPP.Server.Controllers
                 }
                 else
                 {
-                    return NotFound();
+                    return Forbid();
                 }
             }
-            
-            if(User.IsInRole("lecturer"))
+
+            if (User.IsInRole("lecturer"))
             {
-                if(opinion.Lecture.LecturerId == Int32.Parse(User.Identity.Name))
+                if (opinion.Lecture.LecturerId == Int32.Parse(User.Identity.Name))
                 {
                     return Ok(new OpinionDto(opinion));
                 }
                 else
                 {
-                    return NotFound();
+                    return Forbid();
                 }
             }
 
-            if(User.IsInRole("company"))
+            if (User.IsInRole("company"))
             {
                 var lecturers = _context.Users.Where(x => x.CompanyId == Int32.Parse(User.Identity.Name)).Select(x => (int?)x.Id).ToList();
                 if (lecturers.Contains(opinion.Lecture.LecturerId))
                 {
                     return Ok(new OpinionDto(opinion));
                 }
-                else return NotFound();
+                else return Forbid();
             }
 
             return NotFound();
