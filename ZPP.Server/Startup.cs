@@ -55,9 +55,9 @@ namespace ZPP.Server
             {
                 options.AddPolicy("users", policy => policy.RequireRole("student", "lecturer", "admin"));
                 options.AddPolicy("admins", policy => policy.RequireRole("admin"));
-                options.AddPolicy("students", policy => policy.RequireRole("student","admin"));
-                options.AddPolicy("lecturers", policy => policy.RequireRole("lecturer","admin"));
-                options.AddPolicy("companies", policy => policy.RequireRole("role","admin"));
+                options.AddPolicy("students", policy => policy.RequireRole("student", "admin"));
+                options.AddPolicy("lecturers", policy => policy.RequireRole("lecturer", "company", "admin"));
+                options.AddPolicy("companies", policy => policy.RequireRole("company", "admin"));
             });
             services.AddJwt();
 

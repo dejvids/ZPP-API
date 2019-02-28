@@ -24,11 +24,12 @@ namespace ZPP.Server.Models
         }
 
         public AppDbContext(DbContextOptions<AppDbContext> options)
-       : base(options)
+        :base(options)
         { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
             modelBuilder.Entity<Participant>().HasKey(p => new { p.StudentId, p.LectureId });
 
             modelBuilder.Entity<Lecture>()
@@ -42,7 +43,7 @@ namespace ZPP.Server.Models
                 .HasForeignKey(x => x.StudentId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Opinion>().HasKey(o => new { o.StudentId, o.LectureId });
+            modelBuilder.Entity<Opinion>().HasAlternateKey(o => new { o.StudentId, o.LectureId });
 
             modelBuilder.Entity<Opinion>().HasOne(x => x.Student).WithMany(x => x.GivenOpinions)
                 .HasForeignKey(x => x.StudentId)
@@ -82,7 +83,7 @@ namespace ZPP.Server.Models
                 new Participant { StudentId = 2, LectureId = 1, Present = true });
 
             modelBuilder.Entity<Opinion>().HasData(
-                new Opinion { Date = DateTime.UtcNow, LecturerMark = 5, SubjectMark = 5, RecommendationChance = 5, StudentId = 2, LectureId = 1 });
+                new Opinion {Id = 1,  Date = DateTime.UtcNow, LecturerMark = 5, SubjectMark = 5, RecommendationChance = 5, StudentId = 2, LectureId = 1 });
             modelBuilder.Entity<Company>().HasData(
                 new Company { Id = 1, Name = "Asseco BS" },
                 new Company { Id = 2, Name = "Sii" });

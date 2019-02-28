@@ -109,17 +109,20 @@ namespace ZPP.Server.Migrations
                 name: "Opinions",
                 columns: table => new
                 {
-                    StudentId = table.Column<int>(nullable: false),
-                    LectureId = table.Column<int>(nullable: false),
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Date = table.Column<DateTime>(nullable: false),
                     SubjectMark = table.Column<int>(nullable: false),
                     LecturerMark = table.Column<int>(nullable: false),
                     RecommendationChance = table.Column<int>(nullable: false),
-                    Comment = table.Column<string>(nullable: true)
+                    Comment = table.Column<string>(nullable: true),
+                    StudentId = table.Column<int>(nullable: false),
+                    LectureId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Opinions", x => new { x.StudentId, x.LectureId });
+                    table.PrimaryKey("PK_Opinions", x => x.Id);
+                    table.UniqueConstraint("AK_Opinions_StudentId_LectureId", x => new { x.StudentId, x.LectureId });
                     table.ForeignKey(
                         name: "FK_Opinions_Lectures_LectureId",
                         column: x => x.LectureId,
@@ -190,10 +193,10 @@ namespace ZPP.Server.Migrations
                 columns: new[] { "Id", "CompanyId", "Email", "IsActive", "Login", "Name", "PasswordHash", "RoleId", "Surname" },
                 values: new object[,]
                 {
-                    { 1, null, "admin@zpp.com", true, "admin", "Admin", "AQAAAAEAACcQAAAAEH61BB2ol71COX+U34fAt7j/ejYI1G/hD45kQjugZhqUaxxYXlqHCozAmCvY+moQyg==", 1, "ZPP" },
-                    { 2, null, "dawid.surys@pollub.edu.pl", true, "dsurys", "Dawid", "AQAAAAEAACcQAAAAEO9gIHT2XLb0VyUFwBH0WXdTSkKR/SbJxaVxlJYj16cZP3N0y+fXXmVIExdjK5H67w==", 2, "Suryś" },
-                    { 3, 1, "tomasz.kowalczyk@bs.pl", true, "tKowalczyk", "Tomasz", "AQAAAAEAACcQAAAAEO+Q1oKtEabjibSdGEOb5/zY/qUzsueNTe9dB2JV3JFtECYFWf6op0axoOJB8IGWGA==", 3, "Kowalczyk" },
-                    { 4, 1, "assecok@bs.pl", true, "Asseco official", null, "AQAAAAEAACcQAAAAEBuKs1b8u4gdGwAjtTnm6LsM1hBZCLZHavAid48ACECTly2Ybk9D8PBKYXOQgM//jQ==", 4, null }
+                    { 1, null, "admin@zpp.com", true, "admin", "Admin", "AQAAAAEAACcQAAAAELfdo+dvSLiXmfaCcoIh3jBD4V1ysf0PGed3GaIR8+58+x1k/DHUFy8YyvYMyqQrHw==", 1, "ZPP" },
+                    { 2, null, "dawid.surys@pollub.edu.pl", true, "dsurys", "Dawid", "AQAAAAEAACcQAAAAEDNO1ADLBOhOOVPLcVpGr089zcNGYnNiOgAP3trHv6lh6D0jQVuat2PAV9nJteFpSA==", 2, "Suryś" },
+                    { 3, 1, "tomasz.kowalczyk@bs.pl", true, "tKowalczyk", "Tomasz", "AQAAAAEAACcQAAAAENL0c5zZfHgMsWqNDHfKrV9GDqmKHCcuC5QDzGzUieDM2M5m3YFnVrY3KwCUHELpDA==", 3, "Kowalczyk" },
+                    { 4, 1, "assecok@bs.pl", true, "Asseco official", null, "AQAAAAEAACcQAAAAEPE39i8911/hTNmki7iXMxD9TLpTySQOtg/ZjeBu3/5wB8GbLJDxN06Yo+Ay8K61NA==", 4, null }
                 });
 
             migrationBuilder.InsertData(
@@ -203,8 +206,8 @@ namespace ZPP.Server.Migrations
 
             migrationBuilder.InsertData(
                 table: "Opinions",
-                columns: new[] { "StudentId", "LectureId", "Comment", "Date", "LecturerMark", "RecommendationChance", "SubjectMark" },
-                values: new object[] { 2, 1, null, new DateTime(2019, 2, 17, 15, 21, 20, 968, DateTimeKind.Utc).AddTicks(7844), 5, 5, 5 });
+                columns: new[] { "Id", "Comment", "Date", "LectureId", "LecturerMark", "RecommendationChance", "StudentId", "SubjectMark" },
+                values: new object[] { 1, null, new DateTime(2019, 2, 26, 22, 21, 54, 378, DateTimeKind.Utc).AddTicks(4212), 1, 5, 5, 2, 5 });
 
             migrationBuilder.InsertData(
                 table: "Participants",
