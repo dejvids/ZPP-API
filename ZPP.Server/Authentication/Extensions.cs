@@ -60,7 +60,7 @@ namespace ZPP.Server.Authentication
              {
                  OnRemoteFailure = (RemoteFailureContext context) =>
                  {
-                     context.Response.Redirect("/signin-failed");
+                     //context.Response.Redirect("/signin-failed");
                      context.HandleResponse();
                      return Task.CompletedTask;
                  },
@@ -75,7 +75,7 @@ namespace ZPP.Server.Authentication
              {
                  OnRemoteFailure = (RemoteFailureContext context) =>
                  {
-                     context.Response.Redirect("/signin-failed");
+                     //context.Response.
                      context.HandleResponse();
                      return Task.CompletedTask;
                  },

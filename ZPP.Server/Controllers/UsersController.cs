@@ -50,6 +50,8 @@ namespace ZPP.Server.Controllers
 
         // POST: api/sign-up
         [HttpPost("/api/sign-up")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [AllowAnonymous]
         public async Task<IActionResult> SignUp([FromBody] SignUpModel user)
         {
@@ -74,6 +76,8 @@ namespace ZPP.Server.Controllers
         }
 
         [HttpPost("/api/sign-in")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [AllowAnonymous]
         public async Task<IActionResult> SignIn([FromBody] SignInModel user)
         {
@@ -110,6 +114,8 @@ namespace ZPP.Server.Controllers
 
 
         [HttpGet("/handle-auth")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> HandleLoginAsync()
         {
             string email;
@@ -129,7 +135,10 @@ namespace ZPP.Server.Controllers
 
                 bool isNewUser = !_dbContext.Users.Any(x => x.Email.ToUpper() == email.ToUpper());
                 if (string.IsNullOrEmpty(email))
-                    return Redirect("/signin-failed");
+                {
+                    Log.Error("Sign in failed");
+                    return BadRequest("Nieudane logowanie");
+                }
                 if (isNewUser)
                 {
                     var newUser = new User()
@@ -156,6 +165,8 @@ namespace ZPP.Server.Controllers
         }
 
         [Route("/api/signin-external")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> SignInExternal()
         {
             string email;
@@ -175,7 +186,7 @@ namespace ZPP.Server.Controllers
 
                 bool isNewUser = !_dbContext.Users.Any(x => x.Email.ToUpper() == email.ToUpper());
                 if (string.IsNullOrEmpty(email))
-                    return Redirect("/signin-failed");
+                    return BadRequest("Nieudane logowanie");
                 if (isNewUser)
                 {
                     var newUser = new User()
@@ -200,17 +211,12 @@ namespace ZPP.Server.Controllers
             }
         }
 
-        [HttpGet("/signin-failed")]
-        public IActionResult SignInFailed()
-        {
-            Log.Error("External sigin fialed");
-            return BadRequest(new SignInResult(false, "Nieudane logowanie", null));
-        }
-
         // DELETE: api/ApiWithActions/5
         [HttpDelete("{id}")]
         public void Delete(int id)
-        { }
+        {
+            //TODO: Implement or delete
+        }
 
     }
 }
