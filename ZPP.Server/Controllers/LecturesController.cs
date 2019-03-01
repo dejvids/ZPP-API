@@ -44,6 +44,8 @@ namespace ZPP.Server.Controllers
         // GET: api/Lectures/5
         [HttpGet("{id}")]
         [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<Lecture>> GetLecture(int id)
         {
             var lecture = await _context.Lectures.Include(l => l.Lecturer).FirstOrDefaultAsync(l => l.Id == id);
@@ -59,6 +61,9 @@ namespace ZPP.Server.Controllers
         // PUT: api/Lectures/5
         [HttpPut("{id}")]
         [JwtAuth("lecturers")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> PutLecture(int id, NewLectureDto newLecture)
         {
             if (!LectureExists(id))
@@ -90,6 +95,8 @@ namespace ZPP.Server.Controllers
         // POST: api/Lectures
         [HttpPost]
         [JwtAuth("lecturers")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PostLecture(NewLectureDto newLecture)
         {
             if (newLecture.LecturerId == null && User.IsInRole("lecturer"))
@@ -152,6 +159,8 @@ namespace ZPP.Server.Controllers
 
         // DELETE: api/Lectures/5
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [JwtAuth("lecturers")]
         public async Task<IActionResult> DeleteLecture(int id)
         {

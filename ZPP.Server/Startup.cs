@@ -62,6 +62,7 @@ namespace ZPP.Server
             services.AddJwt();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddSwaggerDocument();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -86,6 +87,20 @@ namespace ZPP.Server
                 name: "default",
                 template: "{controller=Home}/{action=Index}/{id?}");
                 });
+            app.UseSwagger(config => config.PostProcess = (document, request) =>
+            {
+                if (request.Headers.ContainsKey("X-External-Host"))
+                {
+                    document.Host = request.Headers["X-External-Host"].First();
+                    document.BasePath = request.Headers["X-External-Path"].First();
+                }
+            });
+
+            app.UseSwaggerUi3(config => config.TransformToExternalPath = (internalUiRoute, request) =>
+            {
+                var externalPath = request.Headers.ContainsKey("X-External-Path") ? request.Headers["X-External-Path"].First() : "";
+                return externalPath + internalUiRoute;
+            });
         }
     }
 }

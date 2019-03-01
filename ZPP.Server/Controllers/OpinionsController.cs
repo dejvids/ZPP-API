@@ -53,6 +53,8 @@ namespace ZPP.Server.Controllers
         }
 
         [HttpGet("/api/opinions/mine")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [JwtAuth("students")]
         public async Task<ActionResult<IEnumerable<OpinionDto>>> GetMyOpinions()
         {
@@ -66,6 +68,8 @@ namespace ZPP.Server.Controllers
         }
 
         [HttpGet("/api/opinions/lecture/{id}")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [JwtAuth("lecturers")]
         public async Task<ActionResult<IEnumerable<OpinionDto>>> GetLectureOpinions(int id)
         {
@@ -98,6 +102,8 @@ namespace ZPP.Server.Controllers
 
         // GET: api/Opinions/5
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [JwtAuth("users")]
         public async Task<ActionResult<OpinionDto>> GetOpinion(int id)
         {
@@ -147,6 +153,9 @@ namespace ZPP.Server.Controllers
 
         // PUT: api/Opinions/5
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [JwtAuth("lecturers")]
         public async Task<IActionResult> PutOpinion(int id, NewOpinionDto opinion)
         {
@@ -168,14 +177,13 @@ namespace ZPP.Server.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+                return Ok();
             }
             catch (DbUpdateConcurrencyException ex)
             {
                 Log.Error($"ex.Message {ex.Message}");
                 return BadRequest();
             }
-
-            return NoContent();
         }
 
         // POST: api/Opinions
@@ -209,6 +217,8 @@ namespace ZPP.Server.Controllers
 
         // DELETE: api/Opinions/5
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<Opinion>> DeleteOpinion(int id)
         {
             var opinion = await _context.Opinions.FindAsync(id);

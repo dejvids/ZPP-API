@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using ZPP.Server.Authentication;
 using ZPP.Server.Entities;
 using ZPP.Server.Models;
@@ -33,6 +34,8 @@ namespace ZPP.Server.Controllers
         // GET: api/Companies/5
         [HttpGet("{id}")]
         [JwtAuth("admins")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<Company>> GetCompany(int id)
         {
             var company = await _context.Companies.FindAsync(id);
@@ -42,12 +45,15 @@ namespace ZPP.Server.Controllers
                 return NotFound();
             }
 
-            return company;
+            return Ok(company);
         }
 
         // PUT: api/Companies/5
         [HttpPut("{id}")]
         [JwtAuth("admins")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> PutCompany(int id, Company company)
         {
             if (id != company.Id)
@@ -69,7 +75,7 @@ namespace ZPP.Server.Controllers
                 }
                 else
                 {
-                    throw;
+                    Log.Error("Error occured");
                 }
             }
 
