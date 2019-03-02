@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Authentication;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -28,14 +29,16 @@ namespace ZPP.Server.Controllers
         private SignInManager<IdentityUser> _signInManager;
         private IAccessTokenService _tokenService;
         private string _blazorClient = @"http://localhost:5003/signin-external";
+        private readonly IMapper _mapper;
 
         public UsersController(AppDbContext dbContext, IPasswordHasher<Entities.User> passwordHasher, IIdentityService identityService,
-            SignInManager<IdentityUser> signInManager)
+            SignInManager<IdentityUser> signInManager, IMapper mapper)
         {
             _dbContext = dbContext;
             _passwrodHasher = passwordHasher;
             _identityService = identityService;
             _signInManager = signInManager;
+            _mapper = mapper;
         }
 
         // GET: api/Users
@@ -45,7 +48,7 @@ namespace ZPP.Server.Controllers
         {
             int userId = Int32.Parse(User.Identity.Name);
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == userId);
-            return Ok(new UserDto { Login = user.Login, Email = user.Email, Surname = user.Surname, Name = user.Name });
+            return Ok(_mapper.Map<UserDto>(user));
         }
 
         // POST: api/sign-up

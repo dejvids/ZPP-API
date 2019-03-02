@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,10 +21,12 @@ namespace ZPP.Server.Controllers
     {
         const int _itemsPerPage = 10;
         private readonly AppDbContext _context;
+        private IMapper _mapper;
 
-        public LecturesController(AppDbContext context)
+        public LecturesController(AppDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Lectures
@@ -37,7 +40,7 @@ namespace ZPP.Server.Controllers
                 .OrderByDescending(x => x.Date)
                 .Skip(Math.Min((page * _itemsPerPage), _context.Lectures.Count()) - Math.Min(_itemsPerPage, _context.Lectures.Count()))
                 .Take(_itemsPerPage)
-                .Select(l => new LectureDto(l))
+                .Select(l => _mapper.Map<LectureDto>(l))
                 .ToListAsync();
         }
 
@@ -55,7 +58,7 @@ namespace ZPP.Server.Controllers
                 return NotFound();
             }
 
-            return Ok(new LectureDto(lecture));
+            return Ok(_mapper.Map<LectureDto>(lecture));
         }
 
         // PUT: api/Lectures/5
@@ -71,12 +74,33 @@ namespace ZPP.Server.Controllers
                 return NotFound();
             }
 
-            if(!ValidateAndCreateLecture(newLecture, out string msg, out Lecture lecture))
+            if (!ValidateAndCreateLecture(newLecture, out string msg))
             {
                 return BadRequest(msg);
             }
+            var lecture = _context.Lectures.Include(l => l.Lecturer).FirstOrDefault(l => l.Id == id);
+            if (User.IsInRole("lecturer") && lecture.LecturerId != Int32.Parse(User.Identity.Name))
+            {
+                return Forbid();
+            }
+            if(User.IsInRole("company") && lecture.Lecturer.CompanyId != Int32.Parse(User.Claims.FirstOrDefault(x=>x.Type=="cmp")?.Value))
+            {
+                return Forbid();
+            }
 
-            lecture.Id = id;
+            lecture.Name = newLecture.Name;
+            lecture.Place = newLecture.Place;
+            lecture.Date = newLecture.Date;
+            lecture.Description = newLecture.Description;
+
+            if (User.IsInRole("company") && newLecture.LecturerId != lecture.LecturerId)
+            {
+                var lecturer = await _context.Users.Include(x=>x.Role).FirstOrDefaultAsync(x => x.Id == newLecture.LecturerId && x.Role.Name == "lecturer");
+                if (lecturer == null || lecturer.CompanyId != Int32.Parse(User.Claims.FirstOrDefault(x => x.Type == "cmp")?.Value))
+                {
+                    return BadRequest("Taki wykładowca nie istnieje");
+                }
+            }
             _context.Entry(lecture).State = EntityState.Modified;
 
             try
@@ -104,11 +128,11 @@ namespace ZPP.Server.Controllers
                 newLecture.LecturerId = Int32.Parse(User.Identity.Name);
             }
 
-            if (!ValidateAndCreateLecture(newLecture, out string msg, out var lecture))
+            if (!ValidateAndCreateLecture(newLecture, out string msg))
             {
                 return BadRequest(msg);
             }
-
+            var lecture = _mapper.Map<Lecture>(newLecture);
             _context.Lectures.Add(lecture);
             try
             {
@@ -120,12 +144,11 @@ namespace ZPP.Server.Controllers
                 return BadRequest("Wystąpił błąd w trakcie zapisu");
             }
 
-            return Ok();
+            return Ok(new { lecture.Id });
         }
 
-        private bool ValidateAndCreateLecture(NewLectureDto newLecture, out string message, out Lecture lecture)
+        private bool ValidateAndCreateLecture(NewLectureDto newLecture, out string message)
         {
-            lecture = null;
             message = null;
             if (string.IsNullOrEmpty(newLecture.Name))
             {
@@ -144,15 +167,6 @@ namespace ZPP.Server.Controllers
                 message = "Niewłaściwa data";
                 return false;
             }
-
-            lecture = new Lecture()
-            {
-                Name = newLecture.Name,
-                Description = newLecture.Description,
-                Date = newLecture.Date,
-                Place = newLecture.Place,
-                LecturerId = newLecture.LecturerId
-            };
             return true;
 
         }
@@ -164,10 +178,19 @@ namespace ZPP.Server.Controllers
         [JwtAuth("lecturers")]
         public async Task<IActionResult> DeleteLecture(int id)
         {
-            var lecture = await _context.Lectures.FindAsync(id);
+            var lecture = await _context.Lectures.Include(l => l.Lecturer).FirstOrDefaultAsync(l => l.Id == id);
             if (lecture == null)
             {
                 return NotFound();
+            }
+            if (User.IsInRole("lecture") && Int32.Parse(User.Identity.Name) != lecture.LecturerId)
+            {
+                return Forbid();
+            }
+
+            if (User.IsInRole("company") && lecture.Lecturer.CompanyId != Int32.Parse(User.Identity.Name))
+            {
+                return Forbid();
             }
 
             _context.Lectures.Remove(lecture);
