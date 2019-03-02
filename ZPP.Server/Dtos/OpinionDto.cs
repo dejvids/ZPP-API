@@ -4,18 +4,6 @@ namespace ZPP.Server.Dtos
 {
     public class OpinionDto
     {
-        public OpinionDto(Opinion opinion)
-        {
-            OpinionId = opinion.Id;
-            LectureId = opinion.LectureId;
-            StudentId = opinion.StudentId;
-            SubjectMark = opinion.SubjectMark;
-            LecturerMark = opinion.LecturerMark;
-            RecommendationChance = opinion.RecommendationChance;
-            Comment = opinion.Comment;
-            LectureName = opinion.Lecture?.Name;
-        }
-
         public int OpinionId { get; set; }
         public int LectureId { get; set; }
         public int StudentId { get; set; }

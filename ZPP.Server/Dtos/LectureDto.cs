@@ -8,18 +8,6 @@ namespace ZPP.Server.Dtos
 {
     public class LectureDto
     {
-        public LectureDto(Lecture lecture)
-        {
-            Id = lecture.Id;
-            Name = lecture.Name;
-            Date = lecture.Date;
-            Place = lecture.Place;
-            Description = lecture.Description;
-            LecturerID = lecture.Lecturer?.Id;
-            LecturerName = lecture.Lecturer?.Name;
-            LecturerSurname = lecture.Lecturer?.Surname;
-        }
-
         public int Id { get; set; }
         public string Name { get; set; }
         public DateTime Date { get; set; }
