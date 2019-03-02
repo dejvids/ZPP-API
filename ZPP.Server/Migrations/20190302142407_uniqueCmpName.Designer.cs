@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ZPP.Server.Models;
 
 namespace ZPP.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190302142407_uniqueCmpName")]
+    partial class uniqueCmpName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -123,7 +125,7 @@ namespace ZPP.Server.Migrations
                         new
                         {
                             Id = 1,
-                            Date = new DateTime(2019, 3, 2, 14, 35, 50, 206, DateTimeKind.Utc).AddTicks(2636),
+                            Date = new DateTime(2019, 3, 2, 14, 24, 7, 8, DateTimeKind.Utc).AddTicks(467),
                             LectureId = 1,
                             LecturerMark = 5,
                             RecommendationChance = 5,
@@ -231,7 +233,7 @@ namespace ZPP.Server.Migrations
                             IsActive = true,
                             Login = "admin",
                             Name = "Admin",
-                            PasswordHash = "AQAAAAEAACcQAAAAEGFft0xAY1gz4yNNmn6Hc7PimfeRkkFq6Mkqg1eDGor3EEo3xtS4hk2Mek/IgzbmuA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEIUJrjcF4yRIIo587MHUp7wlZlcbquXVJfdP0rKeovZuw/Jfyp/BAe4AA+RvbjB5pg==",
                             RoleId = 1,
                             Surname = "ZPP"
                         },
@@ -242,7 +244,7 @@ namespace ZPP.Server.Migrations
                             IsActive = true,
                             Login = "dsurys",
                             Name = "Dawid",
-                            PasswordHash = "AQAAAAEAACcQAAAAEGBSjbZjOG5fV4x5dX4SnJerIvzszK5XYUL8eGDjLczDrA0eW7wyuhcXrRDmB9pbvw==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEDWMo8obFJd0IoE9eLZZhaUbyaVUR6H2V9tpmpDVq1PT0r9scLuKWirYPtJTyBxXdg==",
                             RoleId = 2,
                             Surname = "Suryś"
                         },
@@ -254,7 +256,7 @@ namespace ZPP.Server.Migrations
                             IsActive = true,
                             Login = "tKowalczyk",
                             Name = "Tomasz",
-                            PasswordHash = "AQAAAAEAACcQAAAAEJDjSiyb9AuJEp0r2iOnOa7hX/c5FvWhso4PXKnmfW7QW3+ccJxbDgksB+gz8agr4w==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEO6kltvLPOpV1pz6JczJmZ/E8ZH5RL+X2W15kSuANjPZ1tkyKYoy6z4W7pSIKQ0x7Q==",
                             RoleId = 3,
                             Surname = "Kowalczyk"
                         },
@@ -265,7 +267,7 @@ namespace ZPP.Server.Migrations
                             Email = "assecok@bs.pl",
                             IsActive = true,
                             Login = "Asseco official",
-                            PasswordHash = "AQAAAAEAACcQAAAAEJ4yd/o9T18SJmSxFAkJlOlXikH2gWxGcfbksvFib2kTVRXFgzUEnXBNyIA0x1SKjw==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEIyv6Vaci6Vv0tH0R3O2A72vlyDx4goWn610E2fLsoERIG+iPBIKK/6OX7gIhWdhxA==",
                             RoleId = 4
                         });
                 });

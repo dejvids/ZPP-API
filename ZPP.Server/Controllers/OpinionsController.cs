@@ -215,6 +215,40 @@ namespace ZPP.Server.Controllers
             return Ok();
         }
 
+        private bool ValidateAndSetOpinion(NewOpinionDto opinion, out string message)
+        {
+            message = string.Empty;
+            var lecture = _context.Lectures.FirstOrDefault(x => x.Id == opinion.LectureId);
+            if(lecture == null)
+            {
+                message = "Nie wskazano zajęć do oceny";
+                return false;
+            }
+            if(lecture.Date > DateTime.Now)
+            {
+                message = "Zajęcia jeszcze się nie odbyły";
+                return false;
+            }
+            if(opinion.LecturerMark < Opinion.MinMark || opinion.LecturerMark > Opinion.MaxMark)
+            {
+                message = $"Ocena miećwartość od {Opinion.MinMark} do {Opinion.MaxMark}";
+                return false;
+            }
+            if (opinion.SubjectMark < Opinion.MinMark || opinion.SubjectMark > Opinion.MaxMark)
+            {
+                message = $"Ocena miećwartość od {Opinion.MinMark} do {Opinion.MaxMark}";
+                return false;
+            }
+            if (opinion.RecommendationChance < Opinion.MinMark || opinion.RecommendationChance > Opinion.MaxMark)
+            {
+                message = $"Ocena miećwartość od {Opinion.MinMark} do {Opinion.MaxMark}";
+                return false;
+            }
+
+
+            return true;
+        }
+
         // DELETE: api/Opinions/5
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

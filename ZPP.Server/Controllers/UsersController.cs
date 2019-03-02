@@ -70,7 +70,7 @@ namespace ZPP.Server.Controllers
             catch (Exception ex)
             {
                 Log.Error($"Sign up failed {ex.Message}");
-                return BadRequest(new SignUpResult(false, "Rejestracja zakończona niepowodzeniem"));
+                return BadRequest(new SignUpResult(false, ex.Message));
             }
             return Ok(new SignUpResult(true, "Rejestracja zakończona pomyślnie"));
         }

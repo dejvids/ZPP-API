@@ -8,7 +8,10 @@ namespace ZPP.Server.Entities
 {
     public class Opinion
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [NotMapped]
+        static public int MinMark { get; } = 1;
+        [NotMapped]
+        static public int MaxMark { get; } = 5;
         public int Id { get; set; }
         public DateTime Date { get; set; }
         public int SubjectMark { get; set; }
