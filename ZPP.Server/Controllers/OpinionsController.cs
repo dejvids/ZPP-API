@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,10 +20,12 @@ namespace ZPP.Server.Controllers
     public class OpinionsController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IMapper _mapper;
 
-        public OpinionsController(AppDbContext context)
+        public OpinionsController(AppDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Opinions
@@ -35,7 +38,7 @@ namespace ZPP.Server.Controllers
 
             //Return all opinions for all lectures which meet the conditions if user is admin
             if (User.IsInRole("admin"))
-                return await opinions.Select(o => new OpinionDto(o)).ToListAsync();
+                return await opinions.Select(o => _mapper.Map<OpinionDto>(o)).ToListAsync();
 
             //Return all opinions for all company lecturers if user is company
             if (User.IsInRole("company"))
@@ -43,13 +46,13 @@ namespace ZPP.Server.Controllers
                 var companyLecturers = _context.Users.Where(u => u.CompanyId == Int32.Parse(User.Identity.Name)).Select(u => (object)u.Id);
                 var lectures = _context.Lectures.Where(l => companyLecturers.Contains(l.LecturerId)).Select(l => l.Id);
 
-                return await opinions.Where(o => lectures.Contains(o.LectureId)).Select(o => new OpinionDto(o)).ToListAsync();
+                return await opinions.Where(o => lectures.Contains(o.LectureId)).Select(o => _mapper.Map<OpinionDto>(o)).ToListAsync();
             }
 
             //Return only all opinions fo all user lectures
             var userLectures = _context.Lectures.Where(l => l.LecturerId == Int32.Parse(User.Identity.Name)).Select(l => l.Id);
 
-            return await opinions.Where(o => userLectures.Contains(o.LectureId)).Select(o => new OpinionDto(o)).ToListAsync();
+            return await opinions.Where(o => userLectures.Contains(o.LectureId)).Select(o => _mapper.Map<OpinionDto>(o)).ToListAsync();
         }
 
         [HttpGet("/api/opinions/mine")]
@@ -64,7 +67,7 @@ namespace ZPP.Server.Controllers
             {
                 return NotFound();
             }
-            return await opinions.Select(l => new OpinionDto(l)).ToListAsync();
+            return await opinions.Select(opinion => _mapper.Map<OpinionDto>(opinion)).ToListAsync();
         }
 
         [HttpGet("/api/opinions/lecture/{id}")]
@@ -97,7 +100,7 @@ namespace ZPP.Server.Controllers
 
             var opinions = await _context.Opinions.Include(l => l.Lecture).Where(o => o.LectureId == id).ToListAsync();
 
-            return Ok(opinions.Select(x => new OpinionDto(x)));
+            return Ok(opinions.Select(opinion => _mapper.Map<OpinionDto>(opinion)));
         }
 
         // GET: api/Opinions/5
@@ -118,7 +121,7 @@ namespace ZPP.Server.Controllers
             {
                 if (opinion.StudentId == Int32.Parse(User.Identity.Name))
                 {
-                    return Ok(new OpinionDto(opinion));
+                    return Ok(_mapper.Map<OpinionDto>(opinion));
                 }
                 else
                 {
@@ -130,7 +133,7 @@ namespace ZPP.Server.Controllers
             {
                 if (opinion.Lecture.LecturerId == Int32.Parse(User.Identity.Name))
                 {
-                    return Ok(new OpinionDto(opinion));
+                    return Ok(_mapper.Map<OpinionDto>(opinion));
                 }
                 else
                 {
@@ -143,7 +146,7 @@ namespace ZPP.Server.Controllers
                 var lecturers = _context.Users.Where(x => x.CompanyId == Int32.Parse(User.Identity.Name)).Select(x => (int?)x.Id).ToList();
                 if (lecturers.Contains(opinion.Lecture.LecturerId))
                 {
-                    return Ok(new OpinionDto(opinion));
+                    return Ok(_mapper.Map<OpinionDto>(opinion));
                 }
                 else return Forbid();
             }
@@ -156,7 +159,7 @@ namespace ZPP.Server.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [JwtAuth("lecturers")]
+        [JwtAuth("admins")]
         public async Task<IActionResult> PutOpinion(int id, NewOpinionDto opinion)
         {
             if (!OpinionExists(id))
@@ -188,19 +191,13 @@ namespace ZPP.Server.Controllers
 
         // POST: api/Opinions
         [HttpPost]
-        [JwtAuth("lecturers")]
+        [JwtAuth("students")]
         public async Task<IActionResult> PostOpinion(NewOpinionDto opinion)
         {
-            var newOpinion = new Opinion
-            {
-                Date = DateTime.UtcNow,
-                LectureId = opinion.LectureId,
-                StudentId = Int32.Parse(User.Identity.Name),
-                Comment = opinion.Comment,
-                LecturerMark = opinion.LecturerMark,
-                SubjectMark = opinion.SubjectMark,
-                RecommendationChance = opinion.RecommendationChance
-            };
+            var newOpinion = _mapper.Map<Opinion>(opinion);
+
+            newOpinion.Date = DateTime.UtcNow;
+            newOpinion.StudentId = Int32.Parse(User.Identity.Name);
 
             _context.Opinions.Add(newOpinion);
             try
@@ -253,6 +250,7 @@ namespace ZPP.Server.Controllers
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [JwtAuth("admins")]
         public async Task<ActionResult<Opinion>> DeleteOpinion(int id)
         {
             var opinion = await _context.Opinions.FindAsync(id);
