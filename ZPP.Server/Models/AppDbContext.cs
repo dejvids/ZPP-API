@@ -38,7 +38,6 @@ namespace ZPP.Server.Models
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.SetNull);
 
-
             modelBuilder.Entity<Participant>().HasOne(x => x.Student).WithMany(u => u.UserLectures)
                 .HasForeignKey(x => x.StudentId)
                 .OnDelete(DeleteBehavior.Cascade);
@@ -52,6 +51,8 @@ namespace ZPP.Server.Models
             modelBuilder.Entity<Opinion>().HasOne(x => x.Lecture).WithMany(x => x.ReceivedOpinions)
                 .HasForeignKey(x => x.LectureId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Company>().HasAlternateKey(x => x.Name);
 
 
             //Seed data     
