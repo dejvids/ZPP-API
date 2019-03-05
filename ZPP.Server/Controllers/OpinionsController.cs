@@ -192,14 +192,14 @@ namespace ZPP.Server.Controllers
         // POST: api/Opinions
         [HttpPost]
         [JwtAuth("students")]
-        public async Task<IActionResult> PostOpinion(NewOpinionDto opinion)
+        public async Task<IActionResult> PostOpinion(NewOpinionDto newOpinion)
         {
-            var newOpinion = _mapper.Map<Opinion>(opinion);
+            var opinion = _mapper.Map<Opinion>(newOpinion);
 
-            newOpinion.Date = DateTime.UtcNow;
-            newOpinion.StudentId = Int32.Parse(User.Identity.Name);
+            opinion.Date = DateTime.UtcNow;
+            opinion.StudentId = Int32.Parse(User.Identity.Name);
 
-            _context.Opinions.Add(newOpinion);
+            _context.Opinions.Add(opinion);
             try
             {
                 await _context.SaveChangesAsync();
@@ -209,7 +209,7 @@ namespace ZPP.Server.Controllers
                 Log.Error($"{ex.Message} {ex.StackTrace}");
             }
 
-            return Ok();
+            return Ok(new { opinion.Id });
         }
 
         private bool ValidateAndSetOpinion(NewOpinionDto opinion, out string message)
