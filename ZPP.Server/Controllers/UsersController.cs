@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using ZPP.Server.Authentication;
 using ZPP.Server.Dtos;
@@ -23,13 +24,14 @@ namespace ZPP.Server.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
+        private const int ITEMS_PER_PAGE = 2;
         private AppDbContext _dbContext;
         private IPasswordHasher<Entities.User> _passwrodHasher;
         private IIdentityService _identityService;
         private SignInManager<IdentityUser> _signInManager;
-        private IAccessTokenService _tokenService;
         private string _blazorClient = @"http://localhost:5003/signin-external";
         private readonly IMapper _mapper;
+        private const int MIN_PWD_LENGTH = 6;
 
         public UsersController(AppDbContext dbContext, IPasswordHasher<Entities.User> passwordHasher, IIdentityService identityService,
             SignInManager<IdentityUser> signInManager, IMapper mapper)
@@ -211,6 +213,120 @@ namespace ZPP.Server.Controllers
             {
                 Log.Error(ex.Message);
                 return BadRequest(new SignInResult(false, "Logowanie zakończone niepowodzeniem", null));
+            }
+        }
+
+        [HttpGet("/api/users/page/{page}")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [JwtAuth("admins")]
+        public async Task<IActionResult> GetUsers(int page = 1)
+        {
+            IEnumerable<UserDetailDto> users;
+            try
+            {
+                users = await _dbContext.Users
+                     .Include(x => x.Company)
+                     .OrderByDescending(x => x.Surname)
+                     .Skip(Math.Min((page * ITEMS_PER_PAGE), _dbContext.Users.Count()) - Math.Min(ITEMS_PER_PAGE, _dbContext.Users.Count()))
+                     .Take(ITEMS_PER_PAGE)
+                     .Select(user => _mapper.Map<UserDetailDto>(user))
+                     .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+                return BadRequest($"Nie można pobrać listy użytkowników {ex.Message}");
+            }
+
+            return Ok(users);
+        }
+
+        [HttpPost("/api/users/pwd")]
+        [JwtAuth("users")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ChangePassword([FromBody] string newPassword)
+        {
+            int userId = Int32.Parse(User.Identity.Name);
+            var user = _dbContext.Users.FirstOrDefault(x => x.Id == userId);
+
+            if(!ValidateUserPassword(newPassword,  out string message))
+            {
+                return BadRequest(message);
+            }
+            string oldPassword = user.PasswordHash;
+            user.SetPassword(newPassword, _passwrodHasher);
+
+            if(user.PasswordHash.Equals(oldPassword))
+            {
+                return BadRequest("Nowe hasło nie może być takie samo jak aktualne hasło");
+            }
+            _dbContext.Entry<User>(user).State = EntityState.Modified;
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+                return Ok();
+            }
+            catch(Exception ex)
+            {
+                Log.Error(ex.Message);
+                return BadRequest("Zmiana hasłą zakończona niepowodzeniem");
+            }
+
+        }
+
+        private bool ValidateUserPassword(string newPassword, out string message)
+        {
+            message = string.Empty;
+            if (string.IsNullOrWhiteSpace(newPassword))
+                message = "Hasło nie może być puste";
+            if (newPassword.Length < MIN_PWD_LENGTH)
+                message = "Hasło musi zawierać co najmniej 6 znaków";
+            if (!newPassword.Any(c => char.IsDigit(c)))
+                message = "Hasło musi zawierać co najmniej jednącyfrę";
+            if (!newPassword.Any(c => char.IsLetter(c)))
+                message = "Hasło musi zawierać co najmniej jedną literę";
+
+            return string.IsNullOrEmpty(message) ? true : false;
+        }
+
+        [HttpPut("{id}")]
+        [JwtAuth("admins")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> Update(int id, UserDto newUser)
+        {
+            if (string.IsNullOrEmpty(newUser.Email) || string.IsNullOrEmpty(newUser.Login))
+            {
+                return BadRequest("Login i email są wymagane");
+            }
+
+            if (_dbContext.Users.Any(u => (u.Login.Equals(newUser.Login, StringComparison.InvariantCultureIgnoreCase) || u.Email.Equals(newUser.Email, StringComparison.InvariantCultureIgnoreCase)) && u.Id != id))
+            {
+                return BadRequest("Użytkownik o takim Loginie lub adresie E-mail już istnieje");
+            }
+
+            var user = _dbContext.Users.FirstOrDefault(x => x.Id == id);
+            if (user == null)
+                return BadRequest("Użytkownik nie istnieje");
+
+            user.Name = newUser.Name;
+            user.Surname = newUser.Surname;
+            user.Login = newUser.Login;
+            user.Email = newUser.Email;
+
+            _dbContext.Entry(user).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+                return BadRequest($"Nie można zapisać użytkownika {ex.Message}");
             }
         }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,18 +20,20 @@ namespace ZPP.Server.Controllers
     public class CompaniesController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IMapper _mapper;
 
-        public CompaniesController(AppDbContext context)
+        public CompaniesController(AppDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Companies
         [HttpGet]
         [AllowAnonymous]
-        public async Task<ActionResult<IEnumerable<Company>>> GetCompanies()
+        public async Task<ActionResult<IEnumerable<CompanyDto>>> GetCompanies()
         {
-            return await _context.Companies.ToListAsync();
+            return await _context.Companies.Select(x => _mapper.Map<CompanyDto>(x)).ToListAsync();
         }
 
         // GET: api/Companies/5
@@ -52,7 +55,7 @@ namespace ZPP.Server.Controllers
                 Id = company.Id,
                 Name = company.Name,
                 Url = company.Url,
-                Lecturers = await _context.Users.Where(x => x.CompanyId == company.Id).Select(l => new UserDto(l)).ToListAsync()
+                Lecturers = await _context.Users.Where(x => x.CompanyId == company.Id).Select(user => _mapper.Map<UserDto>(user)).ToListAsync()
             };
             return Ok(response);
         }
@@ -120,14 +123,14 @@ namespace ZPP.Server.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [JwtAuth("admins")]
-        public async Task<ActionResult<int>> PostCompany(NewCompanyDto company)
+        public async Task<ActionResult<int>> PostCompany(NewCompanyDto newCompany)
         {
-            if (!ValidateAndSetCompany(company, out string message))
+            if (!ValidateAndSetCompany(newCompany, out string message))
             {
                 return BadRequest(message);
             }
-            var newCompany = new Company { Name = company.Name, Url = company.Url };
-            _context.Companies.Add(newCompany);
+            var company = _mapper.Map<Company>(newCompany);
+            _context.Companies.Add(company);
             try
             {
                 await _context.SaveChangesAsync();
@@ -138,7 +141,7 @@ namespace ZPP.Server.Controllers
                 return BadRequest("Wystąpił błąd podczas dodawania firmy");
             }
 
-            return Ok(new { newCompany.Id });
+            return Ok(new { company.Id });
         }
 
         // DELETE: api/Companies/5
