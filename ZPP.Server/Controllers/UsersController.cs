@@ -64,6 +64,11 @@ namespace ZPP.Server.Controllers
             {
                 return BadRequest(new SignUpResult(false, "Nie podano wymaganych danych ro rejestracji"));
             }
+            if(!ValidateUserPassword(user.Password, out string message))
+            {
+                return BadRequest(message);
+            }
+
             try
             {
                 await _identityService.SignUpAsync(_dbContext, user);
