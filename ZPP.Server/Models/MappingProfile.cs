@@ -26,6 +26,14 @@ namespace ZPP.Server.Models
             CreateMap<NewCompanyDto, Company>();
             CreateMap<User, UserDetailDto>()
                 .ForMember(destination => destination.CompanyName, opts => opts.MapFrom(source => source.Company.Name));
+
+            CreateMap<Participant, ParticipantDto>()
+                .ForMember(destination => destination.Login, opts => opts.MapFrom(source => source.Student.Login))
+                .ForMember(destination => destination.Name, opts => opts.MapFrom(source => source.Student.Name))
+                .ForMember(destination => destination.Surname, opts => opts.MapFrom(source => source.Student.Surname))
+                .ForMember(destination => destination.Email, opts => opts.MapFrom(source => source.Student.Email));
+
+            CreateMap<NewParticipantDto, Participant>();
         }
     }
 }
