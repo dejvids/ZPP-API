@@ -83,7 +83,7 @@ namespace ZPP.Server.Controllers
             {
                 return Forbid();
             }
-            if(User.IsInRole("company") && lecture.Lecturer.CompanyId != Int32.Parse(User.Claims.FirstOrDefault(x=>x.Type=="cmp")?.Value))
+            if (User.IsInRole("company") && lecture.Lecturer.CompanyId != Int32.Parse(User.Claims.FirstOrDefault(x => x.Type == "cmp")?.Value))
             {
                 return Forbid();
             }
@@ -95,7 +95,7 @@ namespace ZPP.Server.Controllers
 
             if (User.IsInRole("company") && newLecture.LecturerId != lecture.LecturerId)
             {
-                var lecturer = await _context.Users.Include(x=>x.Role).FirstOrDefaultAsync(x => x.Id == newLecture.LecturerId && x.Role.Name == "lecturer");
+                var lecturer = await _context.Users.Include(x => x.Role).FirstOrDefaultAsync(x => x.Id == newLecture.LecturerId && x.Role.Name == "lecturer");
                 if (lecturer == null || lecturer.CompanyId != Int32.Parse(User.Claims.FirstOrDefault(x => x.Type == "cmp")?.Value))
                 {
                     return BadRequest("Taki wykładowca nie istnieje");
@@ -210,6 +210,182 @@ namespace ZPP.Server.Controllers
         private bool LectureExists(int id)
         {
             return _context.Lectures.Any(e => e.Id == id);
+        }
+
+        [HttpGet("/api/lectures/participants/{id}")]
+        [JwtAuth("lecturers")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetParticipants(int id)
+        {
+            var lecture = await _context.Lectures.Include(l => l.Students).FirstOrDefaultAsync(x => x.Id == id);
+            if (lecture == null)
+                return NotFound();
+
+            try
+            {
+                var participants = await _context.Participants
+                    .Include(p => p.Student)
+                    .Where(p => p.LectureId == lecture.Id && p.HasLeft == false)
+                    .Select(p => _mapper.Map<ParticipantDto>(p))
+                    .ToListAsync();
+                return Ok(participants);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+                return BadRequest("Nieprawidłowe żądanie");
+            }
+        }
+
+        [HttpPost("/api/lectures/participants")]
+        [JwtAuth("lecturers")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> AddParticipant(NewParticipantDto newParticipant)
+        {
+            var lecture = await _context.Lectures.FirstOrDefaultAsync(l => l.Id == newParticipant.LectureId);
+            if (lecture == null)
+            {
+                return NotFound("Nie znaleziono zajęć");
+            }
+
+            var student = _context.Users.FirstOrDefault(u => u.Id == newParticipant.StudentId);
+            if (student == null)
+            {
+                return NotFound("Nie znaleziono studenta");
+            }
+
+            if (!CanAddParticipant(student.Id, lecture, out string message))
+            {
+                Log.Warning(message);
+                return BadRequest(message);
+            }
+
+            if (User.IsInRole("lecturer") && lecture.LecturerId != int.Parse(User.Identity.Name))
+            {
+                return Forbid();
+            }
+
+            var existingParticipant = _context.Participants.FirstOrDefault(p => p.LectureId == newParticipant.LectureId && p.StudentId == newParticipant.StudentId && p.HasLeft);
+
+            if (existingParticipant != null)
+            {
+                existingParticipant.HasLeft = false;
+                _context.Entry(existingParticipant).State = EntityState.Modified;
+            }
+            else
+            {
+                var participant = _mapper.Map<Participant>(newParticipant);
+                _context.Participants.Add(participant);
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+                return BadRequest("Nie można dodać uczestnika");
+            }
+
+        }
+
+        [HttpPost("/api/lectures/participants/add-me")]
+        [JwtAuth("users")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> AddMe(NewParticipantDto newParticipant)
+        {
+            var lecture = await _context.Lectures.FirstOrDefaultAsync(l => l.Id == newParticipant.LectureId);
+            if (lecture == null)
+            {
+                return NotFound("Nie znaleziono zajęć");
+            }
+
+            int studentId = Int32.Parse(User.Identity.Name);
+
+            var participant = _mapper.Map<Participant>(newParticipant);
+            participant.StudentId = studentId;
+            if (!CanAddParticipant(studentId, lecture, out string message))
+            {
+                return BadRequest(message);
+            }
+
+            var existingParticipant = _context.Participants.FirstOrDefault(p => p.LectureId == newParticipant.LectureId && p.StudentId == studentId && p.HasLeft);
+
+            if (existingParticipant != null)
+            {
+                existingParticipant.HasLeft = false;
+                _context.Entry(existingParticipant).State = EntityState.Modified;
+            }
+            else
+            {
+                _context.Participants.Add(participant);
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+                return BadRequest("Nie można dodać uczestnika");
+            }
+        }
+
+        [HttpPut("/api/lecture/quit")]
+        [JwtAuth("users")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Quit([FromBody] int id)
+        {
+            var lecture = _context.Lectures.FirstOrDefault(l => l.Id == id);
+
+            if (lecture == null)
+            {
+                return NotFound("Nie znaleziono zajęć");
+            }
+
+            int userId = int.Parse(User.Identity.Name);
+
+            var participant = _context.Participants.FirstOrDefault(p => p.StudentId == userId && p.LectureId == lecture.Id);
+
+            if (participant == null)
+                return BadRequest("Nie jesteś uczestnikiem tych zajęć");
+
+            participant.HasLeft = true;
+
+            _context.Entry(participant).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+                return BadRequest("Wystąpił nieoczekiwany błąd spróbuj ponownie");
+            }
+        }
+
+        private bool CanAddParticipant(int studentId, Lecture lecture, out string message)
+        {
+            message = string.Empty;
+            if (_context.Participants.Any(p => (p.StudentId == studentId && p.LectureId == lecture.Id && p.HasLeft == false)))
+                message = "Ten użytkownik już jest uczestnikiem";
+            if (lecture.Date < DateTime.Now)
+                message = "Zapisy na zajęcia już się zakończyły";
+            return string.IsNullOrEmpty(message) ? true : false;
         }
     }
 }
