@@ -227,7 +227,7 @@ namespace ZPP.Server.Controllers
             {
                 var participants = await _context.Participants
                     .Include(p => p.Student)
-                    .Where(p => p.LectureId == lecture.Id)
+                    .Where(p => p.LectureId == lecture.Id && p.HasLeft == false)
                     .Select(p => _mapper.Map<ParticipantDto>(p))
                     .ToListAsync();
                 return Ok(participants);
@@ -264,17 +264,35 @@ namespace ZPP.Server.Controllers
                 return BadRequest(message);
             }
 
-            if(User.IsInRole("lecturer") && lecture.LecturerId != int.Parse(User.Identity.Name))
+            if (User.IsInRole("lecturer") && lecture.LecturerId != int.Parse(User.Identity.Name))
             {
                 return Forbid();
             }
 
-            var participant = _mapper.Map<Participant>(newParticipant);
+            var existingParticipant = _context.Participants.FirstOrDefault(p => p.LectureId == newParticipant.LectureId && p.StudentId == newParticipant.StudentId && p.HasLeft);
 
-            _context.Participants.Add(participant);
-            await _context.SaveChangesAsync();
+            if (existingParticipant != null)
+            {
+                existingParticipant.HasLeft = false;
+                _context.Entry(existingParticipant).State = EntityState.Modified;
+            }
+            else
+            {
+                var participant = _mapper.Map<Participant>(newParticipant);
+                _context.Participants.Add(participant);
+            }
 
-            return Ok();
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+                return BadRequest("Nie można dodać uczestnika");
+            }
+
         }
 
         [HttpPost("/api/lectures/participants/add-me")]
@@ -290,16 +308,26 @@ namespace ZPP.Server.Controllers
                 return NotFound("Nie znaleziono zajęć");
             }
 
-            int studentID = Int32.Parse(User.Identity.Name);
+            int studentId = Int32.Parse(User.Identity.Name);
 
             var participant = _mapper.Map<Participant>(newParticipant);
-            participant.StudentId = studentID;
-            if (!CanAddParticipant(studentID, lecture, out string message))
+            participant.StudentId = studentId;
+            if (!CanAddParticipant(studentId, lecture, out string message))
             {
                 return BadRequest(message);
             }
 
-            _context.Participants.Add(participant);
+            var existingParticipant = _context.Participants.FirstOrDefault(p => p.LectureId == newParticipant.LectureId && p.StudentId == studentId && p.HasLeft);
+
+            if (existingParticipant != null)
+            {
+                existingParticipant.HasLeft = false;
+                _context.Entry(existingParticipant).State = EntityState.Modified;
+            }
+            else
+            {
+                _context.Participants.Add(participant);
+            }
 
             try
             {
@@ -313,10 +341,47 @@ namespace ZPP.Server.Controllers
             }
         }
 
+        [HttpPut("/api/lecture/quit")]
+        [JwtAuth("users")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Quit([FromBody] int id)
+        {
+            var lecture = _context.Lectures.FirstOrDefault(l => l.Id == id);
+
+            if (lecture == null)
+            {
+                return NotFound("Nie znaleziono zajęć");
+            }
+
+            int userId = int.Parse(User.Identity.Name);
+
+            var participant = _context.Participants.FirstOrDefault(p => p.StudentId == userId && p.LectureId == lecture.Id);
+
+            if (participant == null)
+                return BadRequest("Nie jesteś uczestnikiem tych zajęć");
+
+            participant.HasLeft = true;
+
+            _context.Entry(participant).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+                return BadRequest("Wystąpił nieoczekiwany błąd spróbuj ponownie");
+            }
+        }
+
         private bool CanAddParticipant(int studentId, Lecture lecture, out string message)
         {
             message = string.Empty;
-            if (_context.Participants.Any(p => p.StudentId == studentId && p.LectureId == lecture.Id))
+            if (_context.Participants.Any(p => (p.StudentId == studentId && p.LectureId == lecture.Id && p.HasLeft == false)))
                 message = "Ten użytkownik już jest uczestnikiem";
             if (lecture.Date < DateTime.Now)
                 message = "Zapisy na zajęcia już się zakończyły";
