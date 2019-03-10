@@ -4,7 +4,7 @@ namespace ZPP.Server.Dtos
 {
     public class OpinionDto
     {
-        public int OpinionId { get; set; }
+        public int Id { get; set; }
         public int LectureId { get; set; }
         public int StudentId { get; set; }
         public int SubjectMark { get; set; }
