@@ -8,7 +8,7 @@ namespace ZPP.Server.Entities
     public class VerificationCode
     {
         public int Id { get; set; }
-        public int IdStudent { get; set; }
+        public int LectureId { get; set; }
         public string Code { get; set; }
         public DateTime ValidTo { get; set; }
     }
