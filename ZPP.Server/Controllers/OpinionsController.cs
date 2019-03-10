@@ -33,8 +33,9 @@ namespace ZPP.Server.Controllers
         [JwtAuth("lecturers")]
         public async Task<ActionResult<IEnumerable<OpinionDto>>> GetOpinions(int idLecture, int idStudent)
         {
-            var opinions = _context.Opinions.
-                    Where(o => (o.LectureId == (idLecture == 0 ? o.LectureId : idLecture) && (o.StudentId == (idStudent == 0 ? o.StudentId : idStudent))));
+            var opinions = _context.Opinions
+                .Include(o => o.Lecture)
+                .Where(o => (o.LectureId == (idLecture == 0 ? o.LectureId : idLecture) && (o.StudentId == (idStudent == 0 ? o.StudentId : idStudent))));
 
             //Return all opinions for all lectures which meet the conditions if user is admin
             if (User.IsInRole("admin"))
@@ -216,17 +217,17 @@ namespace ZPP.Server.Controllers
         {
             message = string.Empty;
             var lecture = _context.Lectures.FirstOrDefault(x => x.Id == opinion.LectureId);
-            if(lecture == null)
+            if (lecture == null)
             {
                 message = "Nie wskazano zajęć do oceny";
                 return false;
             }
-            if(lecture.Date > DateTime.Now)
+            if (lecture.Date > DateTime.Now)
             {
                 message = "Zajęcia jeszcze się nie odbyły";
                 return false;
             }
-            if(opinion.LecturerMark < Opinion.MinMark || opinion.LecturerMark > Opinion.MaxMark)
+            if (opinion.LecturerMark < Opinion.MinMark || opinion.LecturerMark > Opinion.MaxMark)
             {
                 message = $"Ocena miećwartość od {Opinion.MinMark} do {Opinion.MaxMark}";
                 return false;
