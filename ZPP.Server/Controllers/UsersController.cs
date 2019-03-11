@@ -356,15 +356,18 @@ namespace ZPP.Server.Controllers
                     int companyId = int.Parse(User.Claims.First(x => x.Type.Equals("cmp", StringComparison.InvariantCultureIgnoreCase)).Value);
                     user.CompanyId = companyId;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Log.Error(ex.Message);
                     return BadRequest("Wystąpił nieoczekiwany błąd spróbuj ponownie");
                 }
             }
-            else if(User.IsInRole("admin"))
+            else if (User.IsInRole("admin"))
             {
-                user.CompanyId = grant.CompanyId;
+                var company = await _dbContext.Companies.FirstOrDefaultAsync(x => x.Id == grant.CompanyId);
+                if (company == null)
+                    return NotFound("Nie znaleziono firmy");
+                user.Company = company;
             }
 
             user.RoleId = _dbContext.Roles.First(x => x.Name.Equals("lecturer", StringComparison.InvariantCultureIgnoreCase)).Id;
@@ -375,12 +378,59 @@ namespace ZPP.Server.Controllers
                 await _dbContext.SaveChangesAsync();
                 return Ok();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log.Error(ex.Message);
                 return BadRequest("wystąpił nieoczekiwany błąd");
             }
+        }
 
+        [HttpPut("set-role")]
+        [JwtAuth("admins")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> SetUserRole(GrantRoleDto grant)
+        {
+            var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == grant.UserId);
+            if(user == null)
+            {
+                return NotFound("Taki użytkownik nie istnieje");
+            }
+
+            var role = await _dbContext.Roles.FirstOrDefaultAsync(x => x.Id == grant.RoleId);
+
+            if(role == null)
+            {
+                return NotFound("Nie znaleziono roli");
+            }
+
+            if(role.Name.Equals("student", StringComparison.InvariantCultureIgnoreCase))
+            {
+                user.Company = null;
+                user.CompanyId = null;
+            }
+            if(role.Name.Equals("company", StringComparison.InvariantCultureIgnoreCase) || role.Name.Equals("lecturer", StringComparison.InvariantCultureIgnoreCase))
+            {
+                var company = await _dbContext.Companies.FirstOrDefaultAsync(x => x.Id == grant.CompanyId);
+                if (company == null)
+                    return NotFound("Nie znaleziono firmy");
+                user.Company = company;
+            }
+
+            user.Role = role;
+
+            try
+            {
+                _dbContext.Entry(user).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+                return Ok();
+            }
+            catch(Exception ex)
+            {
+                Log.Error(ex.Message);
+                return BadRequest($"Nieoczekiwany błąd spróbuj ponownie {ex.Message}");
+            }
         }
 
         // DELETE: api/ApiWithActions/5
