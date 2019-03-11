@@ -64,7 +64,7 @@ namespace ZPP.Server.Controllers
             {
                 return BadRequest(new SignUpResult(false, "Nie podano wymaganych danych ro rejestracji"));
             }
-            if(!ValidateUserPassword(user.Password, out string message))
+            if (!ValidateUserPassword(user.Password, out string message))
             {
                 return BadRequest(message);
             }
@@ -256,14 +256,14 @@ namespace ZPP.Server.Controllers
             int userId = Int32.Parse(User.Identity.Name);
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == userId);
 
-            if(!ValidateUserPassword(newPassword,  out string message))
+            if (!ValidateUserPassword(newPassword, out string message))
             {
                 return BadRequest(message);
             }
             string oldPassword = user.PasswordHash;
             user.SetPassword(newPassword, _passwrodHasher);
 
-            if(user.PasswordHash.Equals(oldPassword))
+            if (user.PasswordHash.Equals(oldPassword))
             {
                 return BadRequest("Nowe hasło nie może być takie samo jak aktualne hasło");
             }
@@ -274,7 +274,7 @@ namespace ZPP.Server.Controllers
                 await _dbContext.SaveChangesAsync();
                 return Ok();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log.Error(ex.Message);
                 return BadRequest("Zmiana hasłą zakończona niepowodzeniem");
@@ -333,6 +333,54 @@ namespace ZPP.Server.Controllers
                 Log.Error(ex.Message);
                 return BadRequest($"Nie można zapisać użytkownika {ex.Message}");
             }
+        }
+
+        [HttpPut("/api/users/grant-lecturer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [JwtAuth("companies")]
+        public async Task<IActionResult> GrantLectureRole(GrantRoleDto grant)
+        {
+            int userId = grant.UserId;
+            var user = await _dbContext.Users.Include(x => x.Role).Where(x => x.Role.Name.Equals("student", StringComparison.InvariantCultureIgnoreCase)).FirstOrDefaultAsync(x => x.Id == userId);
+            if (user == null)
+            {
+                return NotFound("Taki użytkownik nie istnieje");
+            }
+
+            if (User.IsInRole("company"))
+            {
+                try
+                {
+                    int companyId = int.Parse(User.Claims.First(x => x.Type.Equals("cmp", StringComparison.InvariantCultureIgnoreCase)).Value);
+                    user.CompanyId = companyId;
+                }
+                catch(Exception ex)
+                {
+                    Log.Error(ex.Message);
+                    return BadRequest("Wystąpił nieoczekiwany błąd spróbuj ponownie");
+                }
+            }
+            else if(User.IsInRole("admin"))
+            {
+                user.CompanyId = grant.CompanyId;
+            }
+
+            user.RoleId = _dbContext.Roles.First(x => x.Name.Equals("lecturer", StringComparison.InvariantCultureIgnoreCase)).Id;
+            _dbContext.Entry(user).State = EntityState.Modified;
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+                return Ok();
+            }
+            catch(Exception ex)
+            {
+                Log.Error(ex.Message);
+                return BadRequest("wystąpił nieoczekiwany błąd");
+            }
+
         }
 
         // DELETE: api/ApiWithActions/5
