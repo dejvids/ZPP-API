@@ -69,6 +69,11 @@ namespace ZPP.Server.Controllers
                 return BadRequest(message);
             }
 
+            if(!IsValidEmail(user.Email))
+            {
+                return BadRequest(new SignUpResult(false, "Niepoprawny adres email"));
+            }
+
             try
             {
                 await _identityService.SignUpAsync(_dbContext, user);
@@ -297,6 +302,19 @@ namespace ZPP.Server.Controllers
             return string.IsNullOrEmpty(message) ? true : false;
         }
 
+        private bool IsValidEmail(string email)
+        {
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == email;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         [HttpPut("{id}")]
         [JwtAuth("admins")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -393,24 +411,24 @@ namespace ZPP.Server.Controllers
         public async Task<IActionResult> SetUserRole(GrantRoleDto grant)
         {
             var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == grant.UserId);
-            if(user == null)
+            if (user == null)
             {
                 return NotFound("Taki użytkownik nie istnieje");
             }
 
             var role = await _dbContext.Roles.FirstOrDefaultAsync(x => x.Id == grant.RoleId);
 
-            if(role == null)
+            if (role == null)
             {
                 return NotFound("Nie znaleziono roli");
             }
 
-            if(role.Name.Equals("student", StringComparison.InvariantCultureIgnoreCase))
+            if (role.Name.Equals("student", StringComparison.InvariantCultureIgnoreCase))
             {
                 user.Company = null;
                 user.CompanyId = null;
             }
-            if(role.Name.Equals("company", StringComparison.InvariantCultureIgnoreCase) || role.Name.Equals("lecturer", StringComparison.InvariantCultureIgnoreCase))
+            if (role.Name.Equals("company", StringComparison.InvariantCultureIgnoreCase) || role.Name.Equals("lecturer", StringComparison.InvariantCultureIgnoreCase))
             {
                 var company = await _dbContext.Companies.FirstOrDefaultAsync(x => x.Id == grant.CompanyId);
                 if (company == null)
@@ -426,7 +444,7 @@ namespace ZPP.Server.Controllers
                 await _dbContext.SaveChangesAsync();
                 return Ok();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log.Error(ex.Message);
                 return BadRequest($"Nieoczekiwany błąd spróbuj ponownie {ex.Message}");
