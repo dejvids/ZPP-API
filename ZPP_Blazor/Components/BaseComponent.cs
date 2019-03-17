@@ -12,6 +12,7 @@ namespace ZPP_Blazor.Components
     public class BaseComponent : BlazorComponent
     {
         string _developBaseAddress = @"https://localhost:5001";
+        string _prodBaseAddress = @"https://zpp-api.azurewebsites.net";
         [Inject]
         protected HttpClient Http { get; set; }
         [Inject]
@@ -25,10 +26,12 @@ namespace ZPP_Blazor.Components
 
         protected override Task OnInitAsync()
         {
-#if DEBUG
-            Http.BaseAddress = new Uri(_developBaseAddress);
-            AppCtx.BaseAddress = _developBaseAddress;
-#endif
+            Http.BaseAddress = new Uri(_prodBaseAddress);
+            AppCtx.BaseAddress = _prodBaseAddress;
+// #if DEBUG
+//             Http.BaseAddress = new Uri(_developBaseAddress);
+//             AppCtx.BaseAddress = _developBaseAddress;
+// #endif
             return base.OnInitAsync();
         }
     }

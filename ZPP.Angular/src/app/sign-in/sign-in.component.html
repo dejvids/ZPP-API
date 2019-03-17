@@ -1,0 +1,9 @@
+<p>
+  Logowanie
+</p>
+<div class="alert alert-danger" role="alert" [style.visibility]="isAlertVisible ? 'visible' : 'hidden'">
+ {{errorMessage}}
+</div>
+<div>
+  <button class="btn btn-primary" (click) = "signIn()">Zaloguj</button>
+</div>
