@@ -13,10 +13,12 @@ namespace ZPP_Blazor.Services
     public class SignInService
     {
         SessionStorage _sessionStorage;
+        LocalStorage _localStorage;
 
-        public SignInService(SessionStorage sessionStorage)
+        public SignInService(SessionStorage sessionStorage, LocalStorage localStorage)
         {
             _sessionStorage = sessionStorage;
+            _localStorage = localStorage;
         }
         public async Task<bool> HandleSignIn(HttpResponseMessage result)
         {
@@ -45,6 +47,7 @@ namespace ZPP_Blazor.Services
         {
             AppCtx.AccessToken = token?.AccessToken;
             await _sessionStorage.SetItem<JsonWebToken>("accessToken", token);
+            await _localStorage.SetItem<JsonWebToken>("accessToken", token);
         }
     }
 }
