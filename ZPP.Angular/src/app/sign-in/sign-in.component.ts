@@ -1,10 +1,11 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, Output, EventEmitter } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, tap } from 'rxjs/operators';
 import 'src/app/Models/User'
 import { Observable, of } from 'rxjs';
 import { User } from 'src/app/Models/User';
 import { Router } from '@angular/router';
+import { NavbarService } from '../navbar.service';
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
 };
@@ -20,7 +21,7 @@ export class SignInComponent implements OnInit {
   baseUrl: string;
   router: Router;
 
-  constructor(router : Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
+  constructor(private navbarService : NavbarService, router : Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
     this.http = http;
     this.baseUrl = baseUrl;
     this.router = router;
@@ -45,10 +46,10 @@ export class SignInComponent implements OnInit {
       .subscribe((res: SignInResult) => {
         if (res.success) {
           localStorage.setItem('token', JSON.stringify(res.token));
-          this.router.navigateByUrl('/me');
+          this.navbarService.setSignedIn();
+          this.router.navigateByUrl('/profil');
         }
       });
-
   }
 
 /**
