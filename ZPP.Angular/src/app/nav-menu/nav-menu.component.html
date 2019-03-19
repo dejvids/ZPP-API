@@ -1,5 +1,5 @@
 <header>
-  <nav class='navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-primary border-bottom box-shadow mb-3'>
+  <nav class='navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-primary'>
     <div class="container">
       <a class="navbar-brand" [routerLink]='["/"]'>ZPP</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-label="Toggle navigation"
@@ -9,19 +9,16 @@
       <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse" [ngClass]='{"show": isExpanded}'>
         <ul class="navbar-nav flex-grow">
           <li class="nav-item" [routerLinkActive]='["link-active"]' [routerLinkActiveOptions]='{ exact: true }'>
-            <a class="nav-link text-dark" [routerLink]='["/"]'>Strona główna</a>
+            <a class="nav-link" [routerLink]='["/zajecia"]'>Zajęcia</a>
           </li>
           <li class="nav-item" [routerLinkActive]='["link-active"]'>
-            <a class="nav-link text-dark" [routerLink]='["/logowanie"]'>Logowanie</a>
+            <a class="nav-link" [routerLink]='["/logowanie"]'>Logowanie</a>
           </li>
           <li class="nav-item" [routerLinkActive]='["link-active"]'>
-            <a class="nav-link text-dark" [routerLink]='["/rejestracja"]'>Rejestracja</a>
+            <a class="nav-link" [routerLink]='["/rejestracja"]'>Rejestracja</a>
           </li>
           <li class="nav-item" [routerLinkActive]='["link-active"]'>
-            <a class="nav-link text-dark" [routerLink]='["/zajecia"]'>Zajęcia</a>
-          </li>
-          <li class="nav-item" [routerLinkActive]='["link-active"]'>
-            <a class="nav-link text-dark" [routerLink]='["/profil"]' [style.visibility]="isSigned ? 'visible' : 'hidden'">Profil</a>
+            <a class="nav-link" [routerLink]='["/profil"]' [style.visibility]="isSigned ? 'visible' : 'hidden'">Profil</a>
           </li>
         </ul>
       </div>

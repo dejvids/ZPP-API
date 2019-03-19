@@ -11,6 +11,8 @@ import { HomeComponent } from './home/home.component';
 import { ProfileComponent } from './profile/profile.component';
 import { LecturesComponent } from './lectures/lectures.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
+import { FooterComponent } from './footer/footer.component';
+import { SignUpComponent } from './sign-up/sign-up.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +21,9 @@ import { NavMenuComponent } from './nav-menu/nav-menu.component';
     HomeComponent,
     ProfileComponent,
     LecturesComponent,
-    NavMenuComponent
+    NavMenuComponent,
+    FooterComponent,
+    SignUpComponent
   ],
   imports: [
     BrowserModule,
@@ -28,7 +32,8 @@ import { NavMenuComponent } from './nav-menu/nav-menu.component';
       {path: '', component: HomeComponent, pathMatch : 'full'},
       {path: 'logowanie', component: SignInComponent},
       {path: 'profil', component: ProfileComponent},
-      {path: 'zajecia', component: LecturesComponent}
+      {path: 'zajecia', component: LecturesComponent},
+      {path: "rejestracja", component:SignUpComponent}
     ])
   ],
   providers: [],
