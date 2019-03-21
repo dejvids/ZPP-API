@@ -20,7 +20,7 @@ namespace ZPP_Blazor.Components.SignIn
         public async Task SignInApp()
         {
             Console.WriteLine("Logowanie");
-            var user = new { Login = "dsurys", Password = "123456" };
+            var user = new LoginUser { Login = "dsurys", Password = "123456" };
             var content = new StringContent(Json.Serialize(user), System.Text.Encoding.UTF8, "application/json");
             var result = await Http.PostAsync(@"/api/sign-in", content);
             Console.WriteLine(result);
