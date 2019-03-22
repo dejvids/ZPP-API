@@ -36,7 +36,7 @@ namespace ZPP_Blazor.Components.SignIn
             }
             bool isOk = await SignInService.HandleSignIn(result);
             if(isOk)
-                UriHelper.NavigateTo("/me");
+                UriHelper.NavigateTo("/profil");
         }
 
 

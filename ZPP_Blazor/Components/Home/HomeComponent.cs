@@ -26,15 +26,13 @@ namespace ZPP_Blazor.Components.Home
                 Console.WriteLine("Http is null");
             }
             Console.WriteLine(AppCtx.BaseAddress);
-            var response = await Http.GetAsync(AppCtx.BaseAddress + "/api/lectures");
+            var response = await Http.GetAsync("/api/lectures");
             if (response == null)
             {
                 Console.WriteLine("Result is null");
             }
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                Console.WriteLine(await response.Content.ReadAsStringAsync());
-
                 Lectures = Json.Deserialize<List<Lecture>>(response.Content.ReadAsStringAsync().Result);
                 Console.WriteLine("Pobranych wyk³adów " + Lectures.Count);
                 if (Lectures.Count >= 3)

@@ -1,7 +1,8 @@
-@page "/sign-in"
+@page "/logowanie"
 @inherits SignInComponent
+@layout MainLayout
 
-<div>
+<div class="container">
     <h2>Logowanie</h2>
     <button class="btn btn-primary" onclick=@SignInApp>Zaloguj</button>
     <div class="btn btn-primary" onclick="@SignInFacebook">Facebook</div>

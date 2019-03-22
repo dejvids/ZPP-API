@@ -46,8 +46,8 @@ namespace ZPP_Blazor.Services
         public async Task SetUserToken(JsonWebToken token)
         {
             AppCtx.AccessToken = token?.AccessToken;
-            await _sessionStorage.SetItem<JsonWebToken>("accessToken", token);
-            await _localStorage.SetItem<JsonWebToken>("accessToken", token);
+            await _sessionStorage.SetItem<JsonWebToken>("token", token);
+            await _localStorage.SetItem<JsonWebToken>("token", token);
         }
     }
 }
