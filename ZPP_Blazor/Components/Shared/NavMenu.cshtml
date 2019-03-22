@@ -1,13 +1,35 @@
-﻿@inherits NavMenuComponent
+﻿<style>
+    a.navbar-brand {
+    white-space: normal;
+    text-align: center;
+    word-break: break-all;
+  }
+
+  html {
+    font-size: 14px;
+  }
+  @@media (min-width: 768px) {
+    html {
+      font-size: 16px;
+    }
+  }
+  nav{
+      margin-bottom: 0px;
+  }
+
+  .box-shadow {
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+  }
+</style>
 <header>
     <nav class='navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-primary'>
         <div class="container">
-            <a class="navbar-brand" [routerLink]='["/"]'>ZPP</a>
+            <NavLink class="navbar-brand" href="/">ZPP</NavLink>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-label="Toggle navigation"
-                    [attr.aria-expanded]="isExpanded" onclick="@Toggle">
+                     onclick="@Toggle">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse" [ngClass]='{"show": IsExpanded}'>
+            <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse @(IsExpanded ? "show" : null)">
                 <ul class="navbar-nav flex-grow">
                     <li class="nav-item" >
                         <NavLink class="nav-link" href="zajecia">Zajęcia</NavLink>
@@ -26,3 +48,12 @@
         </div>
     </nav>
 </header>
+@functions{
+    public bool IsExpanded { get; set; }
+    public bool IsSigned { get; set; }
+
+    public void Toggle()
+    {
+        this.IsExpanded = !this.IsExpanded;
+    }
+}
