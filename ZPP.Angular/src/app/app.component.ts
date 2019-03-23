@@ -7,4 +7,11 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'ZPP Angular';
+  isHomePage = false;
+
+  Signed: boolean =false;
+
+  public setSigned(isSigned : boolean) {
+     this.Signed = true;
+   }
 }

@@ -26,7 +26,7 @@ namespace ZPP_Blazor.Components.SignIn
             long.TryParse(expires, out long expiresTimeStanmp);
 
             await SignInService.SetUserToken(new JsonWebToken { AccessToken = accessToken, Expires = expiresTimeStanmp, Role = role });
-            UriHelper.NavigateTo("/me");          
+            UriHelper.NavigateTo("/profil");          
         }
 
     }

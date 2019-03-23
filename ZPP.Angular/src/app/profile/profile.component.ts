@@ -24,32 +24,23 @@ export class ProfileComponent implements OnInit {
 
     let token = localStorage.getItem('token');
     if (token == null) {
-      this.roter.navigateByUrl('/sign-in');
+      this.roter.navigateByUrl('/logowanie');
       return;
     }
 
     let tokenObj = JSON.parse(token);
     let jwt = tokenObj.accessToken;
-    console.log(jwt);
     let httpHeaders =
       new HttpHeaders()
         .set('Content-Type', 'application/json; charset=utf-8')
         .set('Authorization', 'Bearer ' + jwt);
-
-    console.log(httpHeaders.getAll('Authorization'));
 
     http.get<User>(baseUrl + "/api/me", { headers: httpHeaders })
       .pipe(
         tap(res => console.log('ok')),
         catchError(this.handleError<any>())
       ).subscribe(res => {
-        console.log(res);
         this.user = res;
-        // this.user = new User();
-        // this.user.login = res.login;
-        // this.user.name = res.name;
-        // this.user.surname = res.surname;
-        // this.user.email = res.email;
       });
   }
 
@@ -71,7 +62,7 @@ export class ProfileComponent implements OnInit {
       }
 
       if (error.status == 401) {
-        this.roter.navigateByUrl("/sign-in");
+        this.roter.navigateByUrl("/logowanie");
         return;
       }
 
@@ -82,5 +73,4 @@ export class ProfileComponent implements OnInit {
 
   ngOnInit() {
   }
-
 }

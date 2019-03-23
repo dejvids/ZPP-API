@@ -1,6 +1,11 @@
 using System.Collections.Generic;
 namespace ZPP_Blazor.Models
 {
+    public class LoginUser
+    {
+        public string Login { get; set; }
+        public string Password { get; set; }
+    }
     public class SignInResult
     {
         public bool Success { get; set; }

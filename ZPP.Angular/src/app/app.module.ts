@@ -10,6 +10,9 @@ import { RouterModule } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { ProfileComponent } from './profile/profile.component';
 import { LecturesComponent } from './lectures/lectures.component';
+import { NavMenuComponent } from './nav-menu/nav-menu.component';
+import { FooterComponent } from './footer/footer.component';
+import { SignUpComponent } from './sign-up/sign-up.component';
 
 @NgModule({
   declarations: [
@@ -17,17 +20,20 @@ import { LecturesComponent } from './lectures/lectures.component';
     SignInComponent,
     HomeComponent,
     ProfileComponent,
-    LecturesComponent
+    LecturesComponent,
+    NavMenuComponent,
+    FooterComponent,
+    SignUpComponent
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
     RouterModule.forRoot([
       {path: '', component: HomeComponent, pathMatch : 'full'},
-      {path: 'home', component: HomeComponent},
-      {path: 'sign-in', component: SignInComponent},
-      {path: 'me', component: ProfileComponent},
-      {path: 'lectures', component: LecturesComponent}
+      {path: 'logowanie', component: SignInComponent},
+      {path: 'profil', component: ProfileComponent},
+      {path: 'zajecia', component: LecturesComponent},
+      {path: "rejestracja", component:SignUpComponent}
     ])
   ],
   providers: [],
