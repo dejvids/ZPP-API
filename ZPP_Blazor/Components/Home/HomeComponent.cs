@@ -20,7 +20,7 @@ namespace ZPP_Blazor.Components.Home
         {
             PromotingLectures = new List<Lecture> { new Lecture(), new Lecture(), new Lecture() };
             await base.OnInitAsync();
-            Console.WriteLine("OnInit");
+            Console.WriteLine("OnInit Home component");
             if (Http == null)
             {
                 Console.WriteLine("Http is null");
