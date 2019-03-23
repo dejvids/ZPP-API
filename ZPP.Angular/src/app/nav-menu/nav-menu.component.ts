@@ -18,7 +18,7 @@ export class NavMenuComponent {
     if (token != null) {
       let jwt = JSON.parse(token);
       console.log(jwt.expires);
-      if (jwt.expires > new Date(Date.now()).getTime()) {
+      if (jwt.expires > new Date().getTime()) {
         this.isSigned = true;
       }
       else {
