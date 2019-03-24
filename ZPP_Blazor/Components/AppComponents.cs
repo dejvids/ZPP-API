@@ -12,7 +12,8 @@ namespace ZPP_Blazor.Components
         {
             await base.OnInitAsync();
 
-            var token = AppCtx.AccessToken ?? (await SessionStorage.GetItem<JsonWebToken>("token"))?.AccessToken ?? (await LocalStorage.GetItem<JsonWebToken>("token"))?.AccessToken;
+            //var token = AppCtx.AccessToken ?? (await SessionStorage.GetItem<JsonWebToken>("token"))?.AccessToken ?? (await LocalStorage.GetItem<JsonWebToken>("token"))?.AccessToken;
+            var token = (await LocalStorage.GetItem<JsonWebToken>("token"))?.AccessToken;
             Http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
         }
     }

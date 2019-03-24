@@ -28,6 +28,7 @@ namespace ZPP_Blazor.Components.Me
                 Console.WriteLine("Http null");
                 return;
             }
+            Console.WriteLine("AuthorizatioN: "+Http.DefaultRequestHeaders.Authorization);
             var response = await Http.GetAsync(@"/api/me");
             Console.WriteLine("request sent");
 
