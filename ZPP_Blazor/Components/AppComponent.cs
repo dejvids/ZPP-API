@@ -6,7 +6,7 @@ using ZPP_Blazor.Models;
 
 namespace ZPP_Blazor.Components
 {
-    public class AppComponents : BaseComponent
+    public class AppComponent : BaseComponent
     {
         protected override async Task OnInitAsync()
         {

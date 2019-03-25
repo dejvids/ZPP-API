@@ -12,7 +12,7 @@ using ZPP_Blazor.Services;
 namespace ZPP_Blazor.Components.SignIn
 {
     [Route("/wyloguj")]
-    public class LogoutComponent : AppComponents
+    public class LogoutComponent : AppComponent
     {
         public LogoutComponent()
         { }

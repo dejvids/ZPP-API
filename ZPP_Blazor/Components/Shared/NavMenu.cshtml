@@ -1,4 +1,5 @@
-﻿@inject LocalStorage localStorage
+﻿@inherits ZPP_Blazor.Components.BaseComponent
+@inject LocalStorage localStorage
 @using ZPP_Blazor.Models;
 @using ZPP_Blazor.Extensions;
 <style>
@@ -58,11 +59,17 @@
 </header>
 @functions{
     public bool IsExpanded { get; set; }
-    public bool IsSigned { get; set; }
+   // public bool IsSigned { get; set; }
 
     protected override async Task OnInitAsync()
     {
-        this.IsSigned = false;
+        SignedInEvent = o=>
+        {
+            Console.WriteLine("Issigned: "+ o);
+            IsSigned = o;
+        };
+        await base.OnInitAsync();
+       /* this.IsSigned = false;
         Console.WriteLine("Nav menu initialization");
         if(localStorage == null)
         {
@@ -86,7 +93,7 @@
         else
         {
             this.IsSigned = false;
-        }
+        }*/
     }
 
     public void Toggle()

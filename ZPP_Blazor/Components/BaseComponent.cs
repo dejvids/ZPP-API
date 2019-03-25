@@ -28,10 +28,41 @@ namespace ZPP_Blazor.Components
 
         protected bool IsSigned { get; set; }
 
+        public Action<bool> SignedInEvent { get; set; }
+
         protected override async Task OnInitAsync()
         {
             Http.BaseAddress = new Uri(_prodBaseAddress);
             AppCtx.BaseAddress = _prodBaseAddress;
+
+            this.IsSigned = false;
+
+            if (LocalStorage == null)
+            {
+                Console.WriteLine("localstorage is null");
+            }
+            var jwt = await LocalStorage.GetItem<JsonWebToken>("token");
+            if (jwt != null)
+            {
+                Console.WriteLine("Expires:" + jwt.Expires);
+                var currentTimeStamp = DateTime.UtcNow.ToTimestamp();
+                if (jwt.Expires > currentTimeStamp)
+                {
+                    Console.WriteLine("Czas tokena: " + jwt.Expires + "Czas UTC " + currentTimeStamp);
+                    this.IsSigned = true;
+                }
+                else
+                {
+                    this.IsSigned = false;
+                }
+            }
+            else
+            {
+                this.IsSigned = false;
+            }
+            Console.WriteLine("Base Component issigned = "+ IsSigned);
+             this.StateHasChanged();
+            SignedInEvent?.Invoke(IsSigned);
         }
     }
 }

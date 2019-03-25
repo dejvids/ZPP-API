@@ -9,7 +9,7 @@ using ZPP_Blazor.Models;
 
 namespace ZPP_Blazor.Components.Me
 {
-    public class MeComponent : AppComponents
+    public class MeComponent : AppComponent
     {
 
         public User User { get; set; }

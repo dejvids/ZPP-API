@@ -26,7 +26,7 @@ namespace ZPP_Blazor.Components.SignIn
         protected override async Task OnInitAsync()
         {
             await base.OnInitAsync();
-            if(IsSigned)
+            if (IsSigned)
             {
                 UriHelper.NavigateTo("/profil");
             }
@@ -45,7 +45,7 @@ namespace ZPP_Blazor.Components.SignIn
                 return;
             }
             var user = new LoginUser { Login = Login, Password = Password };
-            Console.WriteLine("User: "+ user.Login + " " + user.Password);
+            Console.WriteLine("User: " + user.Login + " " + user.Password);
             var content = new StringContent(Json.Serialize(user), System.Text.Encoding.UTF8, "application/json");
             var result = await Http.PostAsync(@"/api/sign-in", content);
             Console.WriteLine(result);
@@ -76,6 +76,7 @@ namespace ZPP_Blazor.Components.SignIn
                 await SignInService.HandleSignIn(obj);
                 this.StateHasChanged();
                 UriHelper.NavigateTo("/profil");
+                IsSigned = true;
             }
             else
             {
