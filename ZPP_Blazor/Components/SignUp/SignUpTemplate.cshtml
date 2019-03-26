@@ -24,7 +24,8 @@
         <div class="col-md-6 offset-md-3 light-box">
             <div style="@(SuccessfullyRegistered ? "visibility:visible;" : "display:none;")">
                 <div class="alert alert-success" style="@(IsAlertVisible ? "visibility:visible;" : "display:none;")" role="alert">@Message</div>
-                <NavLink class="btn btn-primary" href="logowanie">Zaloguj</NavLink>
+                <p>Możesz teraz zalgować się na swoje konto. W tym celu przejdź do strony logowania klikając w link poniżej</p>
+                <NavLink class="btn btn-primary" href="logowanie">Logowanie</NavLink>
             </div>
             <form style="@(!SuccessfullyRegistered ? "visibility:visible;" : "display:none;")">
                 <h2>Załóż konto</h2>

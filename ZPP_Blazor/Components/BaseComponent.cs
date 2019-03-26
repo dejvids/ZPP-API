@@ -28,8 +28,6 @@ namespace ZPP_Blazor.Components
 
         protected bool IsSigned { get; set; }
 
-        public Action<bool> SignedInEvent { get; set; }
-
         protected override async Task OnInitAsync()
         {
             Http.BaseAddress = new Uri(_prodBaseAddress);
@@ -62,7 +60,6 @@ namespace ZPP_Blazor.Components
             }
             Console.WriteLine("Base Component issigned = "+ IsSigned);
              this.StateHasChanged();
-            SignedInEvent?.Invoke(IsSigned);
         }
     }
 }

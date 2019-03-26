@@ -24,7 +24,6 @@ namespace ZPP_Blazor.Components.SignUp
             await base.OnInitAsync();
             if(IsSigned)
             {
-                this.SignedInEvent?.Invoke(true);
                 UriHelper.NavigateTo("/profil");
             }
         }
@@ -66,6 +65,7 @@ namespace ZPP_Blazor.Components.SignUp
             SuccessfullyRegistered = true;
             Message = response.Message;
             IsAlertVisible = true;
+            
            // UriHelper.NavigateTo("/logowanie");
         }
 

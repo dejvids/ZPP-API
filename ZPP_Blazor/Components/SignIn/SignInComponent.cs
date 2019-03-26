@@ -74,9 +74,9 @@ namespace ZPP_Blazor.Components.SignIn
             if (obj.Success)
             {
                 await SignInService.HandleSignIn(obj);
-                this.StateHasChanged();
-                UriHelper.NavigateTo("/profil");
+                // UriHelper.NavigateTo("/profil");
                 IsSigned = true;
+                await JSRuntime.Current.InvokeAsync<bool>("reload", "/profil");
             }
             else
             {

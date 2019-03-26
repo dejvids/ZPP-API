@@ -59,42 +59,6 @@
 </header>
 @functions{
     public bool IsExpanded { get; set; }
-   // public bool IsSigned { get; set; }
-
-    protected override async Task OnInitAsync()
-    {
-        SignedInEvent = o=>
-        {
-            Console.WriteLine("Issigned: "+ o);
-            IsSigned = o;
-        };
-        await base.OnInitAsync();
-       /* this.IsSigned = false;
-        Console.WriteLine("Nav menu initialization");
-        if(localStorage == null)
-        {
-            Console.WriteLine("localstorage is null");
-        }
-        var jwt = await localStorage.GetItem<JsonWebToken>("token");
-        if (jwt != null)
-        {
-            Console.WriteLine("Expires:" + jwt.Expires);
-            var currentTimeStamp = DateTime.UtcNow.ToTimestamp();
-            if (jwt.Expires > currentTimeStamp)
-            {
-                Console.WriteLine("Czas tokena: " + jwt.Expires + "Czas UTC " + currentTimeStamp);
-                this.IsSigned = true;
-            }
-            else
-            {
-                this.IsSigned = false;
-            }
-        }
-        else
-        {
-            this.IsSigned = false;
-        }*/
-    }
 
     public void Toggle()
     {

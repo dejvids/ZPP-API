@@ -13,5 +13,16 @@
     <app>Ładowanie</app>
 
     <script src="_framework/blazor.webassembly.js"></script>
+    <script>
+        // Define a very simple JavaScript function that just prints
+        // the input parameter to the browser's console
+        window.reload = (address) => {
+            location.assign(address);
+
+            // Your function currently has to return something. For demo
+            // purposes, we just return `true`.
+            return true;
+        };
+    </script>
 </body>
 </html>
