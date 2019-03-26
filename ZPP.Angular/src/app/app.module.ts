@@ -13,6 +13,8 @@ import { LecturesComponent } from './lectures/lectures.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { FooterComponent } from './footer/footer.component';
 import { SignUpComponent } from './sign-up/sign-up.component';
+import { AngularFontAwesomeModule } from 'angular-font-awesome';
+import { LogoutComponent } from './sign-in/logout';
 
 @NgModule({
   declarations: [
@@ -23,17 +25,21 @@ import { SignUpComponent } from './sign-up/sign-up.component';
     LecturesComponent,
     NavMenuComponent,
     FooterComponent,
-    SignUpComponent
+    SignUpComponent,
+    LogoutComponent
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
+    FormsModule,
+    AngularFontAwesomeModule,
     RouterModule.forRoot([
-      {path: '', component: HomeComponent, pathMatch : 'full'},
-      {path: 'logowanie', component: SignInComponent},
-      {path: 'profil', component: ProfileComponent},
-      {path: 'zajecia', component: LecturesComponent},
-      {path: "rejestracja", component:SignUpComponent}
+      { path: '', component: HomeComponent, pathMatch: 'full' },
+      { path: 'logowanie', component: SignInComponent },
+      { path: 'profil', component: ProfileComponent },
+      { path: 'zajecia', component: LecturesComponent },
+      { path: "rejestracja", component: SignUpComponent },
+      { path: 'wyloguj', component: LogoutComponent }
     ])
   ],
   providers: [],

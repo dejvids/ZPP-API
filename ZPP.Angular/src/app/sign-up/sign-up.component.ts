@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-sign-up',
@@ -7,9 +8,22 @@ import { Component, OnInit } from '@angular/core';
 })
 export class SignUpComponent implements OnInit {
 
-  constructor() { }
+  router : Router;
+  constructor(router : Router) {
+    this.router = router;
+   }
 
   ngOnInit() {
+    let token = localStorage.getItem('token');
+    console.log('menu ' + token);
+    if (token != null) {
+      let jwt = JSON.parse(token);
+      console.log(jwt.expires);
+      if (jwt.expires > new Date().getTime()) {
+        this.router.navigateByUrl('/profil');
+      }
+    }
+
   }
 
 }

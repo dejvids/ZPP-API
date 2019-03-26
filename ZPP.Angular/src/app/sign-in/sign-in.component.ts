@@ -21,22 +21,33 @@ export class SignInComponent implements OnInit {
   baseUrl: string;
   router: Router;
 
-  constructor(private navbarService : NavbarService, router : Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
+  login = '';
+  password: string = '';
+  isAlertVisible: boolean;
+  errorMessage: string;
+
+  constructor(private navbarService: NavbarService, router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
     this.http = http;
     this.baseUrl = baseUrl;
     this.router = router;
   }
 
-  errorMessage: string;
-  isAlertVisible: boolean = false;
 
   public signIn() {
     console.log('Logowanie');
+
+    if (!this.login || this.login.length == 0 || !this.password || this.password.length == 0) {
+      this.errorMessage = 'Podaj login i hasło';
+      this.isAlertVisible = true;
+      console.log('Podaj login i hasło');
+
+      return;
+    }
     let url = this.baseUrl + "/api/sign-in";
     console.log(url);
     let user = new User();
-    user.login = "dsurys";
-    user.password = "123456";
+    user.login = this.login;
+    user.password = this.password;
     console.log(user);
     this.http.post<SignInResult>(url, user, httpOptions)
       .pipe(
@@ -52,12 +63,21 @@ export class SignInComponent implements OnInit {
       });
   }
 
-/**
-* Handle Http operation that failed.
-* Let the app continue.
-* @param operation - name of the operation that failed
-* @param result - optional value to return as the observable result
-*/
+  public signInFacebook() {
+    console.log('sign in by facebook');
+    location.assign(this.baseUrl + '/sign-in-facebook');
+  }
+
+  public signInGoogle() {
+    console.log('sign in by google');
+    location.assign(this.baseUrl + '/sign-in-google');
+  }
+  /**
+  * Handle Http operation that failed.
+  * Let the app continue.
+  * @param operation - name of the operation that failed
+  * @param result - optional value to return as the observable result
+  */
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
 
@@ -77,9 +97,17 @@ export class SignInComponent implements OnInit {
   }
 
   ngOnInit() {
-  }
+    let token = localStorage.getItem('token');
+    console.log('menu ' + token);
+    if (token != null) {
+      let jwt = JSON.parse(token);
+      console.log(jwt.expires);
+      if (jwt.expires > new Date().getTime()) {
+        this.router.navigateByUrl('/profil');
+      }
+    }
 
-}
+  }
 
 // class User {
 //   id: number;
