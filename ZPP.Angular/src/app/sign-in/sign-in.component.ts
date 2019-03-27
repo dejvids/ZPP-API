@@ -6,6 +6,7 @@ import { Observable, of } from 'rxjs';
 import { User } from 'src/app/Models/User';
 import { Router } from '@angular/router';
 import { NavbarService } from '../navbar.service';
+import { SignInResult } from '../Models/SignInResult';
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
 };
@@ -106,26 +107,5 @@ export class SignInComponent implements OnInit {
         this.router.navigateByUrl('/profil');
       }
     }
-
   }
-
-// class User {
-//   id: number;
-//   login: string;
-//   Email: string;
-//   name: string;
-//   surname: string;
-//   password: string;
-// }
-
-class SignInResult {
-  success: boolean;
-  message: string;
-  token: JsonWebToken;
-}
-
-class JsonWebToken {
-  accessToken: string;
-  expires: number;
-  role: string;
 }

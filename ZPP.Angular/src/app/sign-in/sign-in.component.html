@@ -6,7 +6,7 @@
               <p>
                   Nie masz konta? <a class="btn" [routerLink]='["/rejestracja"]'>Zarejestruj się</a>
               </p>
-              <div class="alert alert-danger" [style.visibility]="isAlertVisible ? 'visible' : 'hidden'"  role="alert">{{errorMessage}}</div>
+              <div class="alert alert-danger" [style.display]="isAlertVisible ? 'block' : 'none'"  role="alert">{{errorMessage}}</div>
               <div class="form-group">
                   <label for="login">Login/E-mail</label>
                   <input type="text" id="email" name="email" class="form-control" [(ngModel)]="login">

@@ -1,0 +1,14 @@
+div .light-box {
+    border: solid #ddd 1px;
+    border-radius: 2%;
+    padding: 2rem;
+}
+
+.btn-max-width {
+    width: 100%;
+}
+
+
+.btn-content {
+    margin-left: 0.5rem
+}
