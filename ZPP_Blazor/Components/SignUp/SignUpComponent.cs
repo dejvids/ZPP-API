@@ -101,6 +101,12 @@ namespace ZPP_Blazor.Components.SignUp
                 Message = "Hasło musi zawierać co najmniej jedną literę";
                 return false;
             }
+            var mail = new System.Net.Mail.MailAddress(Email);
+            if(mail == null)
+            {
+                Message = "Niepoprawny adres e-mail";
+                return false;
+            }
             return true;
         }
     }
