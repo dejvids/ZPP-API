@@ -10,8 +10,8 @@ namespace ZPP_Blazor.Components.Home
 {
     public class HomeComponent : BaseComponent
     {
-        public List<Lecture> Lectures { get; set; }
-        public List<Lecture> PromotingLectures { get; set; }
+        public List<Models.Lecture> Lectures { get; set; }
+        public List<Models.Lecture> PromotingLectures { get; set; }
         public bool DataLoaded { get; set; }
 
         public HomeComponent()
@@ -19,7 +19,7 @@ namespace ZPP_Blazor.Components.Home
 
         protected override async Task OnInitAsync()
         {
-            PromotingLectures = new List<Lecture> { new Lecture(), new Lecture(), new Lecture() };
+            PromotingLectures = new List<Models.Lecture> { new Models.Lecture(), new Models.Lecture(), new Models.Lecture() };
             await base.OnInitAsync();
             Console.WriteLine("OnInit Home component");
             if (Http == null)
@@ -35,7 +35,7 @@ namespace ZPP_Blazor.Components.Home
             }
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                Lectures = Json.Deserialize<List<Lecture>>(response.Content.ReadAsStringAsync().Result);
+                Lectures = Json.Deserialize<List<Models.Lecture>>(await response.Content.ReadAsStringAsync());
                 Console.WriteLine("Pobranych wyk³adów " + Lectures.Count);
                 if (Lectures.Count >= 3)
                 {

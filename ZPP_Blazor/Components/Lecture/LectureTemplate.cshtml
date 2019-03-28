@@ -1,0 +1,12 @@
+﻿@page "/zajecia/{Id}"
+@layout MainLayout
+@inherits LectureComponent
+
+    <div class="container">
+        <h1>@CurrentLecture.Name</h1>
+        <h2>Data:@CurrentLecture.Date</h2>
+        <h2>Miejsce:@CurrentLecture.Place</h2>
+        <h2>Prowadzący:@CurrentLecture.LecturerFullName</h2>
+        <p>@CurrentLecture.Description</p>
+        <button class="btn btn-primary btn-lg">Zapisz się!</button>
+    </div>
