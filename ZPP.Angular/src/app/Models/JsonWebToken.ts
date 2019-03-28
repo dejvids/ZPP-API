@@ -1,5 +1,5 @@
 export class JsonWebToken{
-    AccessToken : string;
-    Expires : number;
-    Role : string;
+    accessToken : string;
+    expires : number;
+    role : string;
 }

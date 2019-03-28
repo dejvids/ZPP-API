@@ -6,6 +6,7 @@ import { environment } from './environments/environment';
 
 export function getBaseUrl() {
   return "https://zpp-api.azurewebsites.net";
+ // return "https://localhost:5001";
 }
 
 const providers = [

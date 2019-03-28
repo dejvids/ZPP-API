@@ -13,8 +13,7 @@ const httpOptions = {
 
 @Component({
     selector: 'app-log-out',
-    templateUrl: './sign-in.component.html',
-    styleUrls: ['./sign-in.component.css']
+    template:''
 })
 export class LogoutComponent implements OnInit {
 

@@ -15,6 +15,7 @@ import { FooterComponent } from './footer/footer.component';
 import { SignUpComponent } from './sign-up/sign-up.component';
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
 import { LogoutComponent } from './sign-in/logout';
+import { SignInExternal } from './sign-in/sign-in-external';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,8 @@ import { LogoutComponent } from './sign-in/logout';
     NavMenuComponent,
     FooterComponent,
     SignUpComponent,
-    LogoutComponent
+    LogoutComponent,
+    SignInExternal
   ],
   imports: [
     BrowserModule,
@@ -39,7 +41,8 @@ import { LogoutComponent } from './sign-in/logout';
       { path: 'profil', component: ProfileComponent },
       { path: 'zajecia', component: LecturesComponent },
       { path: "rejestracja", component: SignUpComponent },
-      { path: 'wyloguj', component: LogoutComponent }
+      { path: 'wyloguj', component: LogoutComponent },
+      { path: 'signin-external', component: SignInExternal }
     ])
   ],
   providers: [],

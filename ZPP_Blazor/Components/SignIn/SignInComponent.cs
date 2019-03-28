@@ -91,14 +91,14 @@ namespace ZPP_Blazor.Components.SignIn
         {
             Console.WriteLine("Facebook login");
 
-            UriHelper.NavigateTo($"{AppCtx.BaseAddress}/sign-in-facebook");
+            UriHelper.NavigateTo($"{AppCtx.BaseAddress}/sign-in-facebook/blazor");
             // await HandleSignIn(result);
         }
 
         public void SignInGoogle()
         {
             Console.WriteLine("Google login");
-            UriHelper.NavigateTo($"{AppCtx.BaseAddress}/sign-in-google");
+            UriHelper.NavigateTo($"{AppCtx.BaseAddress}/sign-in-google/blazor");
         }
     }
 }

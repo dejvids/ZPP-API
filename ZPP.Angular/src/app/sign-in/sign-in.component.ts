@@ -66,12 +66,12 @@ export class SignInComponent implements OnInit {
 
   public signInFacebook() {
     console.log('sign in by facebook');
-    location.assign(this.baseUrl + '/sign-in-facebook');
+    location.assign(this.baseUrl + '/sign-in-facebook/angular');
   }
 
   public signInGoogle() {
     console.log('sign in by google');
-    location.assign(this.baseUrl + '/sign-in-google');
+    location.assign(this.baseUrl + '/sign-in-google/angular');
   }
   /**
   * Handle Http operation that failed.
