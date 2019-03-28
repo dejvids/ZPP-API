@@ -12,6 +12,7 @@ namespace ZPP_Blazor.Components.Home
     {
         public List<Lecture> Lectures { get; set; }
         public List<Lecture> PromotingLectures { get; set; }
+        public bool DataLoaded { get; set; }
 
         public HomeComponent()
         { }
@@ -27,6 +28,7 @@ namespace ZPP_Blazor.Components.Home
             }
             Console.WriteLine(AppCtx.BaseAddress);
             var response = await Http.GetAsync("/api/lectures");
+            DataLoaded = true;
             if (response == null)
             {
                 Console.WriteLine("Result is null");
