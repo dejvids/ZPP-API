@@ -12,13 +12,16 @@
             <a class="nav-link" [routerLink]='["/zajecia"]'>Zajęcia</a>
           </li>
           <li class="nav-item" [routerLinkActive]='["link-active"]'>
-            <a class="nav-link" [routerLink]='["/logowanie"]'>Logowanie</a>
+            <a class="nav-link" [routerLink]='["/logowanie"]' [style.display]="isSigned ? 'none' : 'block'">Logowanie</a>
           </li>
           <li class="nav-item" [routerLinkActive]='["link-active"]'>
-            <a class="nav-link" [routerLink]='["/rejestracja"]'>Rejestracja</a>
+            <a class="nav-link" [routerLink]='["/rejestracja"]' [style.display]="isSigned ? 'none' : 'block'">Rejestracja</a>
           </li>
           <li class="nav-item" [routerLinkActive]='["link-active"]'>
             <a class="nav-link" [routerLink]='["/profil"]' [style.visibility]="isSigned ? 'visible' : 'hidden'">Profil</a>
+          </li>
+          <li class="nav-item" [routerLinkActive]='["link-active"]'>
+            <a class="nav-link" [routerLink]='["/wyloguj"]' [style.visibility]="isSigned ? 'visible' : 'hidden'">Wyloguj</a>
           </li>
         </ul>
       </div>

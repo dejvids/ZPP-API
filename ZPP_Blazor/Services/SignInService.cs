@@ -20,33 +20,26 @@ namespace ZPP_Blazor.Services
             _sessionStorage = sessionStorage;
             _localStorage = localStorage;
         }
-        public async Task<bool> HandleSignIn(HttpResponseMessage result)
+        public async Task<bool> HandleSignIn(SignInResult result)
         {
-            var response = await result.Content?.ReadAsStringAsync();
-            if (response == null)
-                return false;
-            var obj = Json.Deserialize<SignInResult>(response);
-
-            if (obj == null)
-                return false;
             if(_sessionStorage == null)
             {
                 Console.WriteLine("Sessionstorage is null");
                 return false;
             }
-            if (obj.Success)
+            if (result.Success)
             {
-                await SetUserToken(obj.Token);
+                await SetUserToken(result.Token);
                 return true;
             }
-            Console.WriteLine(obj.Message);
+            Console.WriteLine(result.Message);
             return false;
         }
 
         public async Task SetUserToken(JsonWebToken token)
         {
             AppCtx.AccessToken = token?.AccessToken;
-            await _sessionStorage.SetItem<JsonWebToken>("token", token);
+            //await _sessionStorage.SetItem<JsonWebToken>("token", token);
             await _localStorage.SetItem<JsonWebToken>("token", token);
         }
     }

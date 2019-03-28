@@ -1,7 +1,7 @@
 import { JsonWebToken } from './JsonWebToken';
 
 export class SignInResult{
-    Success : boolean;
-    Message : string;
-    Token : JsonWebToken;
+    success : boolean;
+    message : string;
+    token : JsonWebToken;
 }

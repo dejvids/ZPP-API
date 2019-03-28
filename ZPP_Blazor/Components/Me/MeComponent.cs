@@ -9,7 +9,7 @@ using ZPP_Blazor.Models;
 
 namespace ZPP_Blazor.Components.Me
 {
-    public class MeComponent : AppComponents
+    public class MeComponent : AppComponent
     {
 
         public User User { get; set; }
@@ -28,6 +28,7 @@ namespace ZPP_Blazor.Components.Me
                 Console.WriteLine("Http null");
                 return;
             }
+            Console.WriteLine("AuthorizatioN: "+Http.DefaultRequestHeaders.Authorization);
             var response = await Http.GetAsync(@"/api/me");
             Console.WriteLine("request sent");
 

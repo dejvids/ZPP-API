@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using ZPP_Blazor.Extensions;
+using ZPP_Blazor.Models;
 
 namespace ZPP_Blazor.Components
 {
@@ -24,12 +26,40 @@ namespace ZPP_Blazor.Components
         [Inject]
         protected IUriHelper UriHelper { get; set; }
 
-        protected override Task OnInitAsync()
+        protected bool IsSigned { get; set; }
+
+        protected override async Task OnInitAsync()
         {
             Http.BaseAddress = new Uri(_prodBaseAddress);
             AppCtx.BaseAddress = _prodBaseAddress;
 
-            return base.OnInitAsync();
+            this.IsSigned = false;
+
+            if (LocalStorage == null)
+            {
+                Console.WriteLine("localstorage is null");
+            }
+            var jwt = await LocalStorage.GetItem<JsonWebToken>("token");
+            if (jwt != null)
+            {
+                Console.WriteLine("Expires:" + jwt.Expires);
+                var currentTimeStamp = DateTime.UtcNow.ToTimestamp();
+                if (jwt.Expires > currentTimeStamp)
+                {
+                    Console.WriteLine("Czas tokena: " + jwt.Expires + "Czas UTC " + currentTimeStamp);
+                    this.IsSigned = true;
+                }
+                else
+                {
+                    this.IsSigned = false;
+                }
+            }
+            else
+            {
+                this.IsSigned = false;
+            }
+            Console.WriteLine("Base Component issigned = "+ IsSigned);
+             this.StateHasChanged();
         }
     }
 }

@@ -30,6 +30,7 @@ namespace ZPP.Server.Controllers
         private IIdentityService _identityService;
         private SignInManager<IdentityUser> _signInManager;
         private string _blazorClient = @"http://localhost:5003/signin-external";
+        private string _angularClient = @"http://localhost:4200/signin-external";
         private readonly IMapper _mapper;
         private const int MIN_PWD_LENGTH = 6;
 
@@ -112,26 +113,41 @@ namespace ZPP.Server.Controllers
             }
         }
 
-        [HttpGet("/sign-in-google")]
-        public IActionResult SignInByGoogleAsync()
+        [HttpGet("/sign-in-google/{client}")]
+        public IActionResult SignInByGoogleAsync(string client)
         {
-            var authenticationProperties = _signInManager.ConfigureExternalAuthenticationProperties("Google", "/handle-auth");
+            string handleAction = client.Equals("blazor", StringComparison.InvariantCultureIgnoreCase) ? "/handle-auth-blazor" : "/handle-auth-angular";
+            var authenticationProperties = _signInManager.ConfigureExternalAuthenticationProperties("Google", handleAction);
             return Challenge(authenticationProperties, "Google");
         }
 
-        [HttpGet("/sign-in-facebook")]
-        public IActionResult SignInByFacebook()
+        [HttpGet("/sign-in-facebook/{client}")]
+        public IActionResult SignInByFacebook(string client)
         {
-            var authenticationProperties = _signInManager.ConfigureExternalAuthenticationProperties("Facebook", "/handle-auth");
+            string handleAction = client.Equals("blazor", StringComparison.InvariantCultureIgnoreCase) ? "/handle-auth-blazor" : "/handle-auth-angular";
+            var authenticationProperties = _signInManager.ConfigureExternalAuthenticationProperties("Facebook", handleAction);
             return Challenge(authenticationProperties, "Facebook");
         }
 
 
 
-        [HttpGet("/handle-auth")]
+        [HttpGet("/handle-auth-angular")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> HandleLoginAsync()
+        public async Task<IActionResult> HandleLoginAsyncAngular()
+        {
+            return await HandleLoginAsync(_angularClient);
+        }
+
+        [HttpGet("/handle-auth-blazor")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> HandleLoginAsyncBlazor()
+        {
+            return await HandleLoginAsync(_blazorClient);
+        }
+
+        private async Task<IActionResult> HandleLoginAsync(string clientAddress)
         {
             string email;
             try
@@ -169,14 +185,13 @@ namespace ZPP.Server.Controllers
                 }
                 var token = await _identityService.SignInAsync(_dbContext, email);
 
-                return Redirect($@"{_blazorClient}?token={token.AccessToken}&expires={token.Expires}&role={token.Role}");
+                return Redirect($@"{clientAddress}?token={token.AccessToken}&expires={token.Expires}&role={token.Role}");
             }
             catch (Exception ex)
             {
                 Log.Error(ex.Message);
                 return BadRequest(new SignInResult(false, "Logowanie zakończone niepowodzeniem", null));
             }
-
         }
 
         [Route("/api/signin-external")]

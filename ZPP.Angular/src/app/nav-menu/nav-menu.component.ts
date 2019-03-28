@@ -26,7 +26,7 @@ export class NavMenuComponent {
       }
     }
     else{
-      this.isSigned = true;
+      this.isSigned = false;
     }
   }
 

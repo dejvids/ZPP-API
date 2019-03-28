@@ -1,4 +1,5 @@
-﻿@inject LocalStorage localStorage
+﻿@inherits ZPP_Blazor.Components.BaseComponent
+@inject LocalStorage localStorage
 @using ZPP_Blazor.Models;
 @using ZPP_Blazor.Extensions;
 <style>
@@ -40,13 +41,16 @@
                         <NavLink class="nav-link" href="zajecia">Zajęcia</NavLink>
                     </li>
                     <li class="nav-item">
-                        <NavLink class="nav-link" href="logowanie">Logowanie</NavLink>
+                        <NavLink class="nav-link" href="logowanie" style="@(!IsSigned ? "visibility:visible;" : "display:none;")">Logowanie</NavLink>
                     </li>
                     <li class="nav-item">
-                        <NavLink class="nav-link" href="rejestracja">Rejestracja</NavLink>
+                        <NavLink class="nav-link" href="rejestracja" style="@(!IsSigned ? "visibility:visible;" : "display:none;")">Rejestracja</NavLink>
                     </li>
                     <li class="nav-item">
                         <NavLink class="nav-link" style="@(IsSigned ? "visibility:visible;" : "visibility:hidden;")" href="profil">Profil</NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" style="@(IsSigned ? "visibility:visible;" : "visibility:hidden;")" href="wyloguj">Wyloguj</NavLink>
                     </li>
                 </ul>
             </div>
@@ -55,34 +59,6 @@
 </header>
 @functions{
     public bool IsExpanded { get; set; }
-    public bool IsSigned { get; set; }
-
-    protected override async Task OnInitAsync()
-    {
-        Console.WriteLine("Nav menu initialization");
-        if(localStorage == null)
-        {
-            Console.WriteLine("localstorage is null");
-        }
-        var jwt = await localStorage.GetItem<JsonWebToken>("token");
-        Console.WriteLine("expires: " + jwt.Expires);
-        if (jwt != null)
-        {
-            Console.WriteLine(jwt.Expires);
-            if (jwt.Expires > DateTime.UtcNow.ToTimestamp())
-            {
-                this.IsSigned = true;
-            }
-            else
-            {
-                this.IsSigned = false;
-            }
-        }
-        else
-        {
-            this.IsSigned = false;
-        }
-    }
 
     public void Toggle()
     {
