@@ -14,6 +14,7 @@ namespace ZPP_Blazor.Models
         public string LecturerSurname { get; set; }
         public string LecturerFullName
             => $"{LecturerName} {LecturerSurname}";
+        public int NumberOfParticipants {get; set;}
     }
 
 }

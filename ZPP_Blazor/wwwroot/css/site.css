@@ -1,5 +1,5 @@
 div .container-margin-top{
-    margin-top: 4rem;
+    margin-top: 2rem;
 }
 
 .loader-lg {
@@ -100,4 +100,10 @@ div .container-margin-top{
         bottom: 0;
         opacity: 1
     }
+}
+
+.btn-ok{
+    background-color: #39A738;
+    border-color: #39A738;
+    width: 100%;
 }
