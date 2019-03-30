@@ -26,7 +26,6 @@ namespace ZPP_Blazor.Components.Lecture
             Console.WriteLine(endpoint);
             var result = await Http.GetAsync(endpoint);
             string content = await result.Content.ReadAsStringAsync();
-            Console.WriteLine(content);
             CurrentLecture = Json.Deserialize<Models.Lecture>(content);
         }
     }

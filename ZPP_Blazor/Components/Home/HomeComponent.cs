@@ -36,7 +36,7 @@ namespace ZPP_Blazor.Components.Home
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 Lectures = Json.Deserialize<List<Models.Lecture>>(await response.Content.ReadAsStringAsync());
-                Console.WriteLine("Pobranych wyk³adów " + Lectures.Count);
+                Console.WriteLine("Pobranych wykï¿½adï¿½w " + Lectures.Count);
                 if (Lectures.Count >= 3)
                 {
                     PromotingLectures = Lectures.Take(3).ToList();
