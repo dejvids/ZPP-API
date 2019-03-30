@@ -58,7 +58,9 @@ namespace ZPP.Server.Controllers
                 return NotFound();
             }
 
-            return Ok(_mapper.Map<LectureDto>(lecture));
+            var result = _mapper.Map<LectureDto>(lecture);
+            result.NumberOfParticipants = await _context.Participants.Where(p => p.LectureId == lecture.Id).CountAsync();
+            return Ok(result);
         }
 
         // PUT: api/Lectures/5
