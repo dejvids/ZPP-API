@@ -80,36 +80,39 @@
     <div class="row">
         <div class="col-md-4 mb-5">
             <div class="card h-100">
-                <div class="card-body">
+                <div class="card-body" style="@(DataLoaded ? "visibility:visible;" : "visibility:hidden;")">
                     <h2 class="card-title">@PromotingLectures[0]?.Name</h2>
                     <p class="card-text">@PromotingLectures[0]?.Description</p>
                 </div>
+                <div class="loader-md" style="@(!DataLoaded ? "display:block;" : "display:none")"></div>
                 <div class="card-footer">
-                    <a href="#" class="btn btn-primary btn-sm">Więcej</a>
+                    <a href="/zajecia/@PromotingLectures[0]?.Id" style="@(DataLoaded ? "pointer-events:auto" : "pointer-events:none")" class="btn btn-primary btn-sm">Więcej</a>
                 </div>
             </div>
         </div>
         <!-- /.col-md-4 -->
         <div class="col-md-4 mb-5">
             <div class="card h-100">
-                <div class="card-body">
+                <div class="card-body" style="@(DataLoaded ? "visibility:visible;" : "visibility:hidden;")">
                     <h2 class="card-title">@PromotingLectures[1]?.Name</h2>
                     <p class="card-text">@PromotingLectures[1]?.Description</p>
                 </div>
+                <div class="loader-md" style="@(!DataLoaded ? "display:block;" : "display:none")"></div>
                 <div class="card-footer">
-                    <a href="#" class="btn btn-primary btn-sm">Więcej</a>
+                    <a href="/zajecia/@PromotingLectures[1]?.Id"  style="@(DataLoaded ? "pointer-events:auto" : "pointer-events:none")"  class="btn btn-primary btn-sm">Więcej</a>
                 </div>
             </div>
         </div>
         <!-- /.col-md-4 -->
         <div class="col-md-4 mb-5">
             <div class="card h-100">
-                <div class="card-body">
+                <div class="card-body" style="@(DataLoaded ? "visibility:visible;" : "visibility:hidden;")">
                     <h2 class="card-title">@PromotingLectures[2]?.Name</h2>
                     <p class="card-text">@PromotingLectures[2]?.Description</p>
                 </div>
+                <div class="loader-md" style="@(!DataLoaded ? "display:block;" : "display:none")"></div>
                 <div class="card-footer">
-                    <a href="#" class="btn btn-primary btn-sm">Więcej</a>
+                    <a href="/zajecia/@PromotingLectures[2]?.Id" style="@(DataLoaded ? "pointer-events:auto" : "pointer-events:none")"  class="btn btn-primary btn-sm">Więcej</a>
                 </div>
             </div>
         </div>
