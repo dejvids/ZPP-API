@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -11,6 +12,7 @@ using Serilog;
 using ZPP.Server.Authentication;
 using ZPP.Server.Dtos;
 using ZPP.Server.Entities;
+using ZPP.Server.Enums;
 using ZPP.Server.Models;
 
 namespace ZPP.Server.Controllers
@@ -29,15 +31,68 @@ namespace ZPP.Server.Controllers
             _mapper = mapper;
         }
 
+
+        [HttpGet("/api/lectures/all")]
+        [JwtAuth("admins")]
+        public async Task<ActionResult<IEnumerable<LectureDto>>> GetAllLectures(int page = 1, string phrase = null, OrderOption order = OrderOption.date)
+        {
+            var lectures = _context
+                .Lectures
+                .Include(x => x.Lecturer)
+                .Where(x => string.IsNullOrEmpty(phrase) ? true : Regex.Replace(x.Name, @"\s+", "").ToUpperInvariant().Contains(Regex.Replace(phrase ?? x.Name, @"\s+", "").ToUpperInvariant()));
+            if (order == OrderOption.name_desc)
+            {
+
+                lectures = lectures.OrderByDescending(x => x.Name);
+            }
+            else if (order == OrderOption.name)
+            {
+                lectures = lectures.OrderBy(x => x.Name);
+            }
+            else if (order == OrderOption.date_desc)
+            {
+                lectures = lectures.OrderByDescending(x => x.Date);
+            }
+            else
+            {
+                lectures = lectures.OrderBy(x => x.Date);
+            }
+            return await lectures
+                .Skip(Math.Min((page * _itemsPerPage), _context.Lectures.Count()) - Math.Min(_itemsPerPage, _context.Lectures.Count()))
+                .Take(_itemsPerPage)
+                .Select(l => _mapper.Map<LectureDto>(l))
+                .ToListAsync();
+        }
+
         // GET: api/Lectures
         [HttpGet]
         [AllowAnonymous]
-        public async Task<ActionResult<IEnumerable<LectureDto>>> GetLectures(int page = 1)
+        public async Task<ActionResult<IEnumerable<LectureDto>>> GetLectures(int page = 1, string phrase = null, OrderOption order = OrderOption.date)
         {
-            return await _context
+            TimeZoneInfo polandTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
+            var lectures = _context
                 .Lectures
                 .Include(x => x.Lecturer)
-                .OrderByDescending(x => x.Date)
+                .Where(x => x.Date >= TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, polandTimeZone))
+                .Where(x => string.IsNullOrEmpty(phrase) ? true : Regex.Replace(x.Name, @"\s+", "").ToUpperInvariant().Contains(Regex.Replace(phrase ?? x.Name, @"\s+", "").ToUpperInvariant()));
+            if(order == OrderOption.name_desc)
+            {
+
+                lectures = lectures.OrderByDescending(x=>x.Name);
+            }
+            else if(order == OrderOption.name)
+            {
+                lectures = lectures.OrderBy(x => x.Name);
+            }
+            else if(order == OrderOption.date_desc)
+            {
+                lectures = lectures.OrderByDescending(x => x.Date);
+            }
+            else
+            {
+                lectures = lectures.OrderBy(x => x.Date);
+            }
+            return await lectures
                 .Skip(Math.Min((page * _itemsPerPage), _context.Lectures.Count()) - Math.Min(_itemsPerPage, _context.Lectures.Count()))
                 .Take(_itemsPerPage)
                 .Select(l => _mapper.Map<LectureDto>(l))
