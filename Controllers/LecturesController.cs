@@ -99,6 +99,43 @@ namespace ZPP.Server.Controllers
                 .ToListAsync();
         }
 
+        [HttpGet("/api/lectures/mine")]
+        [JwtAuth("all_users")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetMyLectures()
+        {
+            int userId = int.Parse(User.Identity.Name);
+            IEnumerable<LectureDto> lectures = new List<LectureDto>();
+            if (User.IsInRole("student"))
+            {
+                lectures = await _context.Lectures
+                    .Include(x => x.Students)
+                    .Where(x => x.Students.Any(s => s.StudentId == userId))
+                    .OrderByDescending(x => x.Date)
+                    .Select(x => _mapper.Map<LectureDto>(x))
+                    .ToListAsync();
+            }
+            else if(User.IsInRole("lecturer") || User.IsInRole("admin"))
+            {
+                lectures = await _context.Lectures
+                    .Where(x => x.LecturerId == userId)
+                    .OrderByDescending(x => x.Date)
+                    .Select(x => _mapper.Map<LectureDto>(x))
+                    .ToListAsync();
+            }
+            else if(User.IsInRole("company"))
+            {
+                lectures = await _context.Lectures
+                    .Include(x => x.Lecturer)
+                    .Where(x => x.Lecturer.CompanyId == Int32.Parse(User.Claims.FirstOrDefault(claim => claim.Type == "cmp").Value))
+                    .OrderByDescending(x => x.Date)
+                    .Select(x => _mapper.Map<LectureDto>(x))
+                    .ToListAsync();
+            }
+            return Ok(lectures);
+        }
+
         // GET: api/Lectures/5
         [HttpGet("{id}")]
         [AllowAnonymous]
