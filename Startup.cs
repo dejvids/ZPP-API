@@ -54,6 +54,7 @@ namespace ZPP.Server
 
             services.AddAuthorization(options =>
             {
+                options.AddPolicy("all_users", policy => policy.RequireRole("student", "lecturer", "company", "admin"));
                 options.AddPolicy("users", policy => policy.RequireRole("student", "lecturer", "admin"));
                 options.AddPolicy("admins", policy => policy.RequireRole("admin"));
                 options.AddPolicy("students", policy => policy.RequireRole("student", "admin"));
