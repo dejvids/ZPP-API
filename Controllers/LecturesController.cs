@@ -14,6 +14,7 @@ using ZPP.Server.Dtos;
 using ZPP.Server.Entities;
 using ZPP.Server.Enums;
 using ZPP.Server.Models;
+using ZPP.Server.Services;
 
 namespace ZPP.Server.Controllers
 {
@@ -21,14 +22,15 @@ namespace ZPP.Server.Controllers
     [ApiController]
     public class LecturesController : ControllerBase
     {
-        const int _itemsPerPage = 10;
+        private LectureOption _options;
         private readonly AppDbContext _context;
         private IMapper _mapper;
 
-        public LecturesController(AppDbContext context, IMapper mapper)
+        public LecturesController(AppDbContext context, IMapper mapper, LectureOption lectureOptions)
         {
             _context = context;
             _mapper = mapper;
+            _options = lectureOptions;
         }
 
 
@@ -58,8 +60,8 @@ namespace ZPP.Server.Controllers
                 lectures = lectures.OrderBy(x => x.Date);
             }
             return await lectures
-                .Skip(Math.Min((page * _itemsPerPage), _context.Lectures.Count()) - Math.Min(_itemsPerPage, _context.Lectures.Count()))
-                .Take(_itemsPerPage)
+                .Skip(Math.Min((page * _options.PerPage), _context.Lectures.Count()) - Math.Min(_options.PerPage, _context.Lectures.Count()))
+                .Take(_options.PerPage)
                 .Select(l => _mapper.Map<LectureDto>(l))
                 .ToListAsync();
         }
@@ -93,10 +95,26 @@ namespace ZPP.Server.Controllers
                 lectures = lectures.OrderBy(x => x.Date);
             }
             return await lectures
-                .Skip(Math.Min((page * _itemsPerPage), _context.Lectures.Count()) - Math.Min(_itemsPerPage, _context.Lectures.Count()))
-                .Take(_itemsPerPage)
+                .Skip(Math.Min((page * _options.PerPage), _context.Lectures.Count()) - Math.Min(_options.PerPage, _context.Lectures.Count()))
+                .Take(_options.PerPage)
                 .Select(l => _mapper.Map<LectureDto>(l))
                 .ToListAsync();
+        }
+
+        [HttpGet("/api/lectures/promoting")]
+        [AllowAnonymous]
+        public async Task<ActionResult<IEnumerable<LectureDto>>> GetPromotingLectures()
+        {
+            TimeZoneInfo polandTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
+            var lectures = await _context
+                .Lectures
+                .Include(x => x.Lecturer)
+                .Where(x => x.Date >= TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, polandTimeZone))
+                .OrderBy(x => x.Date)
+                .Take(_options.Promoting)
+                .Select(x=>_mapper.Map<LectureDto>(x))
+                .ToListAsync();
+            return Ok(lectures);
         }
 
         [HttpGet("/api/lectures/mine")]

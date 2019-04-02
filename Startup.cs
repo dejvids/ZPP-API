@@ -35,6 +35,7 @@ namespace ZPP.Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var lOptions = Configuration.GetSection("lectures").Get<LectureOption>();
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("local")));
             services.AddCors(options =>
             {
@@ -51,6 +52,7 @@ namespace ZPP.Server
                 .AddTransient<IPasswordHasher<User>, PasswordHasher<User>>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddTransient(o=>lOptions);
 
             services.AddAuthorization(options =>
             {
