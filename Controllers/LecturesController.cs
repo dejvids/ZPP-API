@@ -95,10 +95,24 @@ namespace ZPP.Server.Controllers
                 lectures = lectures.OrderBy(x => x.Date);
             }
             return await lectures
-                .Skip(Math.Min((page * _options.PerPage), _context.Lectures.Count()) - Math.Min(_options.PerPage, _context.Lectures.Count()))
+                //.Skip(Math.Min((page * _options.PerPage), _context.Lectures.Count()) - Math.Min(_options.PerPage, _context.Lectures.Count()))
+                .Skip((page-1) * _options.PerPage)
                 .Take(_options.PerPage)
                 .Select(l => _mapper.Map<LectureDto>(l))
                 .ToListAsync();
+        }
+
+        [HttpGet("/api/lectures/results")]
+        [AllowAnonymous]
+        public async Task<ActionResult<int>> GetNumberOfLectures(string phrase = null, OrderOption order = OrderOption.date)
+        {
+            TimeZoneInfo polandTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
+            return await _context
+                .Lectures
+                .Include(x => x.Lecturer)
+                .Where(x => x.Date >= TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, polandTimeZone))
+                .Where(x => string.IsNullOrEmpty(phrase) ? true : Regex.Replace(x.Name, @"\s+", "").ToUpperInvariant().Contains(Regex.Replace(phrase ?? x.Name, @"\s+", "").ToUpperInvariant()))
+                .CountAsync();
         }
 
         [HttpGet("/api/lectures/promoting")]
