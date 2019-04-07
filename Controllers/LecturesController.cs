@@ -143,7 +143,7 @@ namespace ZPP.Server.Controllers
             {
                 lectures = await _context.Lectures
                     .Include(x => x.Students)
-                    .Where(x => x.Students.Any(s => s.StudentId == userId))
+                    .Where(x => x.Students.Any(s => s.StudentId == userId && s.HasLeft == false))
                     .OrderByDescending(x => x.Date)
                     .Select(x => _mapper.Map<LectureDto>(x))
                     .ToListAsync();
