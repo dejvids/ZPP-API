@@ -141,12 +141,18 @@ namespace ZPP.Server.Controllers
             IEnumerable<LectureDto> lectures = new List<LectureDto>();
             if (User.IsInRole("student"))
             {
-                lectures = await _context.Lectures
+                var studentLectures = await _context.Lectures
                     .Include(x => x.Students)
                     .Where(x => x.Students.Any(s => s.StudentId == userId && s.HasLeft == false))
                     .OrderByDescending(x => x.Date)
-                    .Select(x => _mapper.Map<LectureDto>(x))
+                    .Select(x => _mapper.Map<UserLecutureDto>(x))
                     .ToListAsync();
+                studentLectures.ForEach(l =>
+                {
+                    l.Presente = this._context.Participants.FirstOrDefault(p => p.LectureId == l.Id && p.StudentId == userId)?.Present ?? false;
+                    l.Marked = this._context.Opinions.Any(o => o.StudentId == userId && o.LectureId == l.Id);
+            });
+                return Ok(studentLectures);
             }
             else if(User.IsInRole("lecturer") || User.IsInRole("admin"))
             {
@@ -182,7 +188,17 @@ namespace ZPP.Server.Controllers
                 return NotFound();
             }
 
+
             var result = _mapper.Map<LectureDto>(lecture);
+            if(User != null)
+            {
+                int userId = int.TryParse(User.Identity.Name, out int uId) ? uId : -1;
+                if(userId > 0)
+                {
+                   var participant =  _context.Participants.FirstOrDefault(x => x.StudentId == userId && x.LectureId == id);
+                    result.AlreadyJoined = participant != null;
+                }
+            }
             result.NumberOfParticipants = await _context.Participants.Where(p => p.LectureId == lecture.Id).CountAsync();
             return Ok(result);
         }

@@ -17,5 +17,6 @@ namespace ZPP.Server.Dtos
         public string LecturerName { get; set; }
         public string LecturerSurname { get; set; }
         public int NumberOfParticipants { get; set; }
+        public bool AlreadyJoined { get; set; }
     }
 }
