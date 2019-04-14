@@ -34,6 +34,7 @@ namespace ZPP.Server.Models
                 .ForMember(destination => destination.Email, opts => opts.MapFrom(source => source.Student.Email));
 
             CreateMap<NewParticipantDto, Participant>();
+            CreateMap<Lecture, UserLecutureDto>();
         }
     }
 }
