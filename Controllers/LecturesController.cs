@@ -149,7 +149,7 @@ namespace ZPP.Server.Controllers
                     .ToListAsync();
                 studentLectures.ForEach(l =>
                 {
-                    l.Presente = this._context.Participants.FirstOrDefault(p => p.LectureId == l.Id && p.StudentId == userId)?.Present ?? false;
+                    l.Present = this._context.Participants.FirstOrDefault(p => p.LectureId == l.Id && p.StudentId == userId)?.Present ?? false;
                     l.Marked = this._context.Opinions.Any(o => o.StudentId == userId && o.LectureId == l.Id);
             });
                 return Ok(studentLectures);
