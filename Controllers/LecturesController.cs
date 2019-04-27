@@ -265,7 +265,7 @@ namespace ZPP.Server.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PostLecture(NewLectureDto newLecture)
         {
-            if (newLecture.LecturerId == null && User.IsInRole("lecturer"))
+            if (User.IsInRole("lecturer"))
             {
                 newLecture.LecturerId = Int32.Parse(User.Identity.Name);
             }
@@ -283,7 +283,7 @@ namespace ZPP.Server.Controllers
             catch (Exception ex)
             {
                 Log.Error($"{ex.Message} {ex.StackTrace}");
-                return BadRequest("Wystąpił błąd w trakcie zapisu");
+                return BadRequest("Wystąpił błąd w trakcie zapisu: ");
             }
 
             return Ok(new { lecture.Id });
