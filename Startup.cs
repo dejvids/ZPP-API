@@ -36,6 +36,7 @@ namespace ZPP.Server
         public void ConfigureServices(IServiceCollection services)
         {
             var lOptions = Configuration.GetSection("lectures").Get<LectureOption>();
+            var usersPerPage = Configuration.GetSection("users").GetValue<int>("perPage");
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("local")));
             services.AddCors(options =>
             {
@@ -53,6 +54,7 @@ namespace ZPP.Server
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient(o=>lOptions);
+            services.AddTransient<UsersOption>(o=> new UsersOption(usersPerPage));
 
             services.AddAuthorization(options =>
             {

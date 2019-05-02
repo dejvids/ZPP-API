@@ -24,7 +24,7 @@ namespace ZPP.Server.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private const int ITEMS_PER_PAGE = 2;
+        private readonly int itemsPerPage = 20;
         private AppDbContext _dbContext;
         private IPasswordHasher<Entities.User> _passwrodHasher;
         private IIdentityService _identityService;
@@ -35,13 +35,14 @@ namespace ZPP.Server.Controllers
         private const int MIN_PWD_LENGTH = 6;
 
         public UsersController(AppDbContext dbContext, IPasswordHasher<Entities.User> passwordHasher, IIdentityService identityService,
-            SignInManager<IdentityUser> signInManager, IMapper mapper)
+            SignInManager<IdentityUser> signInManager, IMapper mapper, UsersOption usersOption)
         {
             _dbContext = dbContext;
             _passwrodHasher = passwordHasher;
             _identityService = identityService;
             _signInManager = signInManager;
             _mapper = mapper;
+            itemsPerPage = usersOption.PerPage;
         }
 
         // GET: api/Users
@@ -253,8 +254,8 @@ namespace ZPP.Server.Controllers
                 users = await _dbContext.Users
                      .Include(x => x.Company)
                      .OrderByDescending(x => x.Surname)
-                     .Skip(Math.Min((page * ITEMS_PER_PAGE), _dbContext.Users.Count()) - Math.Min(ITEMS_PER_PAGE, _dbContext.Users.Count()))
-                     .Take(ITEMS_PER_PAGE)
+                     .Skip(Math.Min((page * itemsPerPage), _dbContext.Users.Count()) - Math.Min(itemsPerPage, _dbContext.Users.Count()))
+                     .Take(itemsPerPage)
                      .Select(user => _mapper.Map<UserDetailDto>(user))
                      .ToListAsync();
             }

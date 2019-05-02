@@ -7,6 +7,7 @@ namespace ZPP.Server.Dtos
 {
     public class UserDetailDto
     {
+        public int Id { get; set; }
         public string Login { get; set; }
         public string Surname { get; set; }
         public string Name { get; set; }
@@ -14,5 +15,6 @@ namespace ZPP.Server.Dtos
         public int CompanyId { get; set; }
         public string CompanyName { get; set; }
         public bool IsActive { get; set; }
+        public int RoleId { get; set; }
     }
 }
