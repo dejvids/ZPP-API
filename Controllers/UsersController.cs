@@ -71,7 +71,7 @@ namespace ZPP.Server.Controllers
                 return BadRequest(message);
             }
 
-            if(!IsValidEmail(user.Email))
+            if (!IsValidEmail(user.Email))
             {
                 return BadRequest(new SignUpResult(false, "Niepoprawny adres email"));
             }
@@ -469,9 +469,28 @@ namespace ZPP.Server.Controllers
 
         // DELETE: api/ApiWithActions/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Delete(int id)
         {
-            //TODO: Implement or delete
+            var user = _dbContext.Users.FirstOrDefault(x => x.Id == id);
+            if (user == null)
+            {
+                return NotFound("Nie znaleziono używkonika");
+            }
+            _dbContext.Users.Attach(user);
+            _dbContext.Users.Remove(user);
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+                return BadRequest("Wystąpił błąd podczas usuwania konta użytkownika");
+            }
         }
 
     }
