@@ -97,11 +97,6 @@ namespace ZPP.Server.Controllers
                 return Forbid("Odmowa dostępu. Listę obecności może modyfikować tylko prowadzący zajęcia");
             }
 
-            if (lecture.Date < DateTime.Now)
-            {
-                return BadRequest("Nie możan modyfikować listy obecności. Zajęcia już się odbyły.");
-            }
-
 
             if (code.ValidTo < lecture.Date)
             {
