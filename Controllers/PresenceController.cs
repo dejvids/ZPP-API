@@ -150,7 +150,7 @@ namespace ZPP.Server.Controllers
                 return BadRequest("Opcja jest niedostępna dla wybranych zajęć.");
             }
 
-            if (existingCode.ValidTo < DateTime.Now)
+            if (existingCode.ValidTo < DateTime.Now.AddHours(2))
             {
                 return BadRequest("Kod utracił swoją ważność.");
             }
