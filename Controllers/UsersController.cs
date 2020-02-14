@@ -303,6 +303,45 @@ namespace ZPP.Server.Controllers
 
         }
 
+        [HttpPut("/api/admin/userpwd")]
+        [JwtAuth("admins")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ChangeUserPassword(ChangeUserPasswordDto entry)
+        {
+            var user = _dbContext.Users.FirstOrDefault(x => x.Id == entry.UserId);
+
+            if (user == null)
+                return NotFound("Użytkownik nie istnieje");
+
+            string newPassword = entry.NewPassword;
+
+            if (!ValidateUserPassword(newPassword, out string message))
+            {
+                return BadRequest(message);
+            }
+            string oldPassword = user.PasswordHash;
+            user.SetPassword(newPassword, _passwrodHasher);
+
+            if (user.PasswordHash.Equals(oldPassword))
+            {
+                return BadRequest("Nowe hasło nie może być takie samo jak aktualne hasło");
+            }
+            _dbContext.Entry<User>(user).State = EntityState.Modified;
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+                return BadRequest("Zmiana hasłą zakończona niepowodzeniem");
+            }
+        }
+
+
         private bool ValidateUserPassword(string newPassword, out string message)
         {
             message = string.Empty;
