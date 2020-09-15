@@ -249,3 +249,6 @@ paket-files/
 __pycache__/
 *.pyc
 /.vscode
+
+Migrations/*
+DB/*
