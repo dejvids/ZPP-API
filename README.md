@@ -1,6 +1,10 @@
 ﻿# ZPP-API
 Simple ASP.NET Core WebApi. 
 
+## SPA client
+- [ZPP-Blazor](https://github.com/dejvids/zpp-blazor)
+- [ZPP-Angular](https://github.com/dejvids/zpp-angular)
+
 ## Features
 - SQL Server
 - JWT Authentication
